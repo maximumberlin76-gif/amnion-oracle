@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/system.schema.json",
+  "title": "AMNION-ORACLE system config schema",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "mode": { "type": "string" },
+    "loop_hz": { "type": "number", "minimum": 0 },
+    "log_level": { "type": "string" }
+  }
+}
