@@ -1,0 +1,122 @@
+version: "0.1"
+
+metrics:
+  purpose: "Compute stability/coherence/power mismatch metrics for guards + logs."
+
+  definitions:
+    phase:
+      phi:
+        units: "rad"
+        range: [-6.283185, 6.283185]
+      phi_avg:
+        units: "rad"
+        note: "moving average of phi (or ensemble mean if multi-sensor)"
+
+    power:
+      p_draw:
+        units: "W"
+      p_in:
+        units: "W"
+
+    coherence:
+      c:
+        units: "0..1"
+        range: [0.0, 1.0]
+
+  canonical_metrics:
+    power_mismatch:
+      formula: "p_draw - p_in"
+      units: "W"
+      notes:
+        - "Positive => draw exceeds input"
+        - "Negative => input exceeds draw (buffer/charging possible)"
+
+    power_mismatch_abs:
+      formula: "abs(p_draw - p_in)"
+      units: "W"
+
+    phase_mismatch:
+      formula: "abs(phi - phi_avg)"
+      units: "rad"
+      notes:
+        - "0 is perfect lock"
+        - "grows with drift / desync"
+
+    phase_mismatch_sin:
+      formula: "abs(sin(phi - phi_avg))"
+      units: "0..1"
+      notes:
+        - "bounded mismatch for control loops"
+
+    coherence_drop:
+      formula: "max(0, c_min - c)"
+      units: "0..1"
+      parameters:
+        c_min: 0.73
+
+  aggregations:
+    rolling_windows:
+      default_seconds: 10
+      options_seconds: [1, 3, 5, 10, 30, 60]
+
+    stats:
+      - name: "mean"
+        formula: "avg(x)"
+      - name: "rms"
+        formula: "sqrt(avg(x^2))"
+      - name: "p95"
+        formula: "percentile(x, 95)"
+      - name: "max"
+        formula: "max(x)"
+
+  stability_score:
+    # compact scalar health score for dashboards/logs (not safety-critical)
+    range: [0.0, 1.0]
+    weights:
+      coherence: 0.45
+      phase: 0.30
+      power: 0.25
+    formula:
+      coherence_term: "clamp((c - c_min) / (1 - c_min), 0, 1)"
+      phase_term: "clamp(1 - (phase_mismatch / phase_trip_rad), 0, 1)"
+      power_term: "clamp(1 - (power_mismatch_abs / power_trip_w), 0, 1)"
+      total: "w_c*coherence_term + w_p*phase_term + w_pow*power_term"
+    parameters:
+      c_min: 0.73
+      phase_trip_rad: 0.70
+      power_trip_w: 25.0
+
+  anomaly_flags:
+    thresholds:
+      phase_warn_rad: 0.35
+      phase_trip_rad: 0.70
+      power_warn_w: 10.0
+      power_trip_w: 25.0
+      coherence_warn_margin: 0.03
+      coherence_trip_margin: 0.10
+    flags:
+      - name: "PHASE_WARN"
+        when: "phase_mismatch >= phase_warn_rad"
+      - name: "PHASE_TRIP"
+        when: "phase_mismatch >= phase_trip_rad"
+      - name: "POWER_WARN"
+        when: "power_mismatch_abs >= power_warn_w"
+      - name: "POWER_TRIP"
+        when: "power_mismatch_abs >= power_trip_w"
+      - name: "COH_WARN"
+        when: "c < (c_min + coherence_warn_margin)"
+      - name: "COH_TRIP"
+        when: "c < (c_min + coherence_trip_margin)"
+
+  data_quality:
+    missing_sensor:
+      value: true
+      action: "raise flag"
+    invalid_data:
+      action: "raise flag"
+    nan_policy: "reject_sample"
+
+notes:
+  implementation_hint:
+    - "Compute canonical metrics first, then aggregations, then score."
+    - "Keep formulas mirrored in docs/04_STABILITY_METRICS.md for consistency."
