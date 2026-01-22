@@ -1,0 +1,19 @@
+flowchart TD
+  A[Start] --> B[Load config + init state]
+  B --> C[Read sensors / inputs]
+  C --> D[Validate inputs]
+  D -->|valid| E[Compute derived metrics]
+  D -->|invalid| G[Guard degrade mode]
+
+  E --> F[Control loop update]
+  F --> H[Check safeguards]
+  H -->|ok| I[Apply control output]
+  H -->|risk| J[Barrier mode: decouple + damp + cap]
+
+  G --> J
+  J --> K[Clamp outputs + limit power budget]
+  K --> L[Log event + snapshot hash]
+  I --> L
+  L --> M{Stop?}
+  M -->|no| C
+  M -->|yes| N[End]
