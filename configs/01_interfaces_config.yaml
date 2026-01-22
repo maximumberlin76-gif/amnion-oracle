@@ -1,0 +1,46 @@
+version: "0.1"
+interfaces:
+  sensors:
+    phase:
+      type: "float"
+      units: "rad"
+      valid_range: [-6.283185, 6.283185]
+    coherence:
+      type: "float"
+      units: "0..1"
+      valid_range: [0.0, 1.0]
+    power_in:
+      type: "float"
+      units: "W"
+      valid_range: [0.0, 1000.0]
+    power_draw:
+      type: "float"
+      units: "W"
+      valid_range: [0.0, 1000.0]
+    temperature:
+      type: "float"
+      units: "C"
+      valid_range: [-40.0, 125.0]
+
+  actuators:
+    gain:
+      type: "float"
+      units: "0..1"
+      valid_range: [0.0, 1.0]
+    damping:
+      type: "float"
+      units: "0..1"
+      valid_range: [0.0, 1.0]
+    coupling:
+      type: "float"
+      units: "0..1"
+      valid_range: [0.0, 1.0]
+    power_cap:
+      type: "float"
+      units: "W"
+      valid_range: [0.0, 1000.0]
+
+contracts:
+  missing_data_policy: "degrade_to_safe_mode"
+  invalid_data_policy: "reject_and_log"
+  
