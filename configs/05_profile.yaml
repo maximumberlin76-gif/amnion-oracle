@@ -1,0 +1,62 @@
+# AMNION-ORACLE — Profile config
+# File: configs/05_profile.yaml
+# Purpose: presets for sessions (safe / standard / intensive)
+# NOTE: This is a specification-level profile (no medical claims)
+
+version: "0.1"
+profile:
+  active: "standard"   # options: safe | standard | intensive
+
+presets:
+  safe:
+    description: "Minimal stimulation, maximal safety margins."
+    session:
+      duration_min: 30
+      ramp_min: 10
+      cooldown_min: 10
+    limits:
+      power_budget_pct: 35
+      max_field_amp_pct: 30
+      max_ultrasound_pct: 20
+    gating:
+      strict: true
+      abort_on_any_fault: true
+
+  standard:
+    description: "Balanced mode for routine sessions."
+    session:
+      duration_min: 60
+      ramp_min: 12
+      cooldown_min: 12
+    limits:
+      power_budget_pct: 55
+      max_field_amp_pct: 50
+      max_ultrasound_pct: 35
+    gating:
+      strict: true
+      abort_on_any_fault: true
+
+  intensive:
+    description: "Research mode. Only with complete instrumentation and oversight."
+    session:
+      duration_min: 90
+      ramp_min: 15
+      cooldown_min: 15
+    limits:
+      power_budget_pct: 75
+      max_field_amp_pct: 70
+      max_ultrasound_pct: 55
+    gating:
+      strict: true
+      abort_on_any_fault: true
+
+ui:
+  labels:
+    safe: "SAFE"
+    standard: "STANDARD"
+    intensive: "INTENSIVE"
+  show_profile_banner: true
+
+logging:
+  profile_tag_in_logs: true
+  record_switch_events: true
