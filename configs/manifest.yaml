@@ -1,0 +1,31 @@
+version: "0.1"
+
+project: "AMNION-ORACLE"
+config_set: "default"
+
+load_order:
+  - "00_system.yaml"
+  - "01_interfaces_config.yaml"
+  - "02_safety.yaml"
+  - "03_metrics.yaml"
+  - "04_logging.yaml"
+  - "05_profile.yaml"
+  - "06_safeguards.yaml"
+
+required:
+  - "00_system.yaml"
+  - "01_interfaces_config.yaml"
+  - "02_safety.yaml"
+  - "03_metrics.yaml"
+  - "04_logging.yaml"
+  - "05_profile.yaml"
+  - "06_safeguards.yaml"
+
+compatibility:
+  min_version: "0.1"
+  strict_mode: true
+
+notes:
+  - "manifest is the single source of truth for runtime config loading"
+  - "filenames are relative to /configs"
+```0
