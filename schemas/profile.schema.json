@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/amnion-oracle/schemas/profile.schema.json",
+  "title": "AMNION-ORACLE Profile Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "default": "default"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["research", "field", "demo", "safe"],
+          "default": "safe"
+        },
+        "resonance_hz": {
+          "type": "number",
+          "minimum": 0,
+          "default": 76.4
+        },
+        "notes": {
+          "type": "string",
+          "default": ""
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_power_draw": {
+              "type": "number",
+              "minimum": 0,
+              "default": 1.0
+            },
+            "max_temp_c": {
+              "type": "number",
+              "default": 60.0
+            },
+            "max_iterations": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100000
+            }
+          },
+          "required": ["max_power_draw", "max_temp_c", "max_iterations"]
+        }
+      },
+      "required": ["name", "mode", "resonance_hz", "limits"]
+    }
+  },
+  "required": ["profile"]
+}
