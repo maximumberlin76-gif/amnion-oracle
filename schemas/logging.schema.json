@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/amnion-oracle/schemas/logging.schema.json",
+  "title": "AMNION-ORACLE Logging Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "logging": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+          "default": "INFO"
+        },
+        "format": {
+          "type": "string",
+          "default": "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        },
+        "datefmt": {
+          "type": "string",
+          "default": "%Y-%m-%d %H:%M:%S"
+        },
+        "console": {
+          "type": "boolean",
+          "default": true
+        },
+        "file": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "path": { "type": "string", "default": "logs/amnion.log" },
+            "rotate": { "type": "boolean", "default": true },
+            "max_bytes": { "type": "integer", "minimum": 1024, "default": 1048576 },
+            "backup_count": { "type": "integer", "minimum": 0, "default": 5 }
+          },
+          "required": ["enabled", "path", "rotate", "max_bytes", "backup_count"]
+        }
+      },
+      "required": ["level", "format", "datefmt", "console", "file"]
+    }
+  },
+  "required": ["logging"]
+}
