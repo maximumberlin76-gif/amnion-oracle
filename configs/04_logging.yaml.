@@ -1,0 +1,122 @@
+version: "0.1"
+
+logging:
+  purpose: "Deterministic logs + integrity hashes for AMNION-ORACLE control/sim runs."
+
+  mode:
+    # off | minimal | normal | verbose
+    level: "normal"
+    include_debug_fields: false
+
+  outputs:
+    root_dir: "logs/"
+    structure:
+      - "logs/run_<run_id>/events.jsonl"
+      - "logs/run_<run_id>/metrics.jsonl"
+      - "logs/run_<run_id>/guards.jsonl"
+      - "logs/run_<run_id>/errors.jsonl"
+      - "logs/run_<run_id>/manifest.yaml"
+      - "logs/run_<run_id>/sha256sum.txt"
+      - "logs/run_<run_id>/signature.txt"
+
+  run_identity:
+    run_id_format: "UTC_ISO8601_SHORT"   # e.g. 2026-01-22T22-31-05Z
+    include_git:
+      enabled: true
+      fields: ["repo", "branch", "commit", "dirty"]
+    include_host:
+      enabled: true
+      fields: ["os", "arch", "python", "node", "device"]
+    include_config_hashes: true
+
+  format:
+    line_format: "jsonl"          # jsonl recommended
+    timestamp: "utc_iso8601"
+    float_precision: 6
+    sort_keys: true              # deterministic output
+    ensure_ascii: true
+
+  channels:
+    events:
+      enabled: true
+      file: "events.jsonl"
+      schema:
+        required: ["ts", "run_id", "event", "severity"]
+        optional: ["module", "msg", "ctx", "tags"]
+
+    metrics:
+      enabled: true
+      file: "metrics.jsonl"
+      schema:
+        required: ["ts", "run_id", "metrics"]
+        optional: ["window_s", "quality"]
+
+    guards:
+      enabled: true
+      file: "guards.jsonl"
+      schema:
+        required: ["ts", "run_id", "state"]
+        optional: ["reason", "barrier", "actions", "limits"]
+
+    errors:
+      enabled: true
+      file: "errors.jsonl"
+      schema:
+        required: ["ts", "run_id", "error"]
+        optional: ["trace", "module", "ctx"]
+
+  severity:
+    levels: ["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"]
+    default: "INFO"
+
+  integrity:
+    enabled: true
+    hash:
+      algo: "sha256"
+      include_files:
+        - "events.jsonl"
+        - "metrics.jsonl"
+        - "guards.jsonl"
+        - "errors.jsonl"
+        - "manifest.yaml"
+      output: "sha256sum.txt"
+
+    manifest:
+      enabled: true
+      file: "manifest.yaml"
+      include:
+        - "run_id"
+        - "start_ts"
+        - "end_ts"
+        - "config_files"
+        - "config_hashes"
+        - "git"
+        - "host"
+        - "notes"
+
+    signature:
+      enabled: true
+      type: "detached_text"  # placeholder (no crypto in repo by default)
+      file: "signature.txt"
+      notes:
+        - "Optional: sign sha256sum.txt externally (PGP) and store here."
+
+  retention:
+    keep_days: 90
+    rotate:
+      enabled: true
+      max_mb_per_file: 25
+      compress_old: true
+      compression: "gzip"
+
+  privacy:
+    strip_fields:
+      - "ip"
+      - "mac"
+      - "user_name"
+      - "home_path"
+
+notes:
+  design:
+    - "Logs are deterministic: sorted keys + stable float precision."
+    - "Integrity: manifest + sha256 list to support mirror publication."
