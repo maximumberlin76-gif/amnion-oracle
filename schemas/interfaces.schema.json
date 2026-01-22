@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://amnion-oracle/schemas/interfaces.schema.json",
+  "title": "AMNION-ORACLE Interfaces Configuration Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "interfaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sensor_bus": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "type": "string", "enum": ["mock", "serial", "udp", "tcp", "file"] },
+            "device": { "type": "string" },
+            "baudrate": { "type": "integer", "minimum": 1200 },
+            "host": { "type": "string" },
+            "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "timeout_ms": { "type": "integer", "minimum": 0 },
+            "path": { "type": "string" }
+          }
+        },
+        "actuator_bus": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "type": "string", "enum": ["mock", "serial", "udp", "tcp", "file"] },
+            "device": { "type": "string" },
+            "baudrate": { "type": "integer", "minimum": 1200 },
+            "host": { "type": "string" },
+            "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "timeout_ms": { "type": "integer", "minimum": 0 },
+            "path": { "type": "string" }
+          }
+        },
+        "telemetry": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "type": { "type": "string", "enum": ["log", "mqtt", "http", "file"] },
+            "endpoint": { "type": "string" },
+            "topic": { "type": "string" },
+            "path": { "type": "string" },
+            "flush_interval_sec": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "ui": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "type": { "type": "string", "enum": ["cli", "web"] },
+            "host": { "type": "string" },
+            "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+          }
+        }
+      }
+    }
+  },
+  "required": ["interfaces"]
+}
