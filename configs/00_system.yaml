@@ -1,0 +1,30 @@
+version: "0.1"
+project:
+  name: "AMNION-ORACLE"
+  type: "documentation-first"
+  scope: ["software", "hardware", "gel_chemistry"]
+  non_medical: true
+  non_clinical: true
+
+runtime:
+  modes:
+    - "simulator_only"
+    - "host_controller"
+    - "embedded_controller"
+  default_mode: "simulator_only"
+
+determinism:
+  reproducible_runs: true
+  fixed_seed_default: true
+  time_source: "monotonic"
+  floating_point_notes: "document platform-specific drift"
+
+limits:
+  power_budget_w: 15.0
+  update_rate_hz: 50
+  max_latency_ms: 50
+
+storage:
+  base_dir: "./data"
+  logs_dir: "./data/logs"
+  artifacts_dir: "./data/artifacts"
