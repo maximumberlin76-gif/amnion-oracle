@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/amnion-oracle/schemas/safety.schema.json",
+  "title": "AMNION-ORACLE Safety Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+
+        "input_limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_abs": { "type": "number", "default": 1e9 },
+            "allow_nan": { "type": "boolean", "default": false },
+            "allow_inf": { "type": "boolean", "default": false }
+          },
+          "required": ["max_abs", "allow_nan", "allow_inf"]
+        },
+
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "deny_on_violation": { "type": "boolean", "default": true },
+            "fail_closed": { "type": "boolean", "default": true }
+          },
+          "required": ["deny_on_violation", "fail_closed"]
+        },
+
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "coherence_min": { "type": "number", "default": 0.73 },
+            "mismatch_power_max": { "type": "number", "default": 1e6 },
+            "mismatch_phase_max": { "type": "number", "default": 3.1415926535 }
+          },
+          "required": ["coherence_min", "mismatch_power_max", "mismatch_phase_max"]
+        },
+
+        "actions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "on_violation": {
+              "type": "string",
+              "enum": ["block", "clamp", "degrade"],
+              "default": "block"
+            },
+            "log_level": {
+              "type": "string",
+              "enum": ["DEBUG", "INFO", "WARNING", "ERROR"],
+              "default": "WARNING"
+            }
+          },
+          "required": ["on_violation", "log_level"]
+        }
+      },
+      "required": ["enabled", "input_limits", "policy", "thresholds", "actions"]
+    }
+  },
+  "required": ["safety"]
+}
