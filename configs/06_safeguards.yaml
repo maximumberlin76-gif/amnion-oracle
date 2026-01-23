@@ -1,0 +1,128 @@
+version: "0.2"
+
+safeguards:
+  goal: >
+    Enforce safety invariants at runtime via watchdog timers, input validation,
+    and deterministic control-state escalation.
+
+guard_states:
+  - name: NORMAL
+    description: Stable nominal operation.
+  - name: DEGRADED
+    description: Reduced performance, increased damping, safe throttling.
+  - name: SANDBOX
+    description: Isolation mode, minimal actuation, coupling disabled.
+  - name: SAFE_HOLD
+    description: Hold last safe output, freeze control loop.
+  - name: SHUTDOWN
+    description: Controlled stop, actuators off, safe drain.
+
+triggers:
+  power_mismatch:
+    enabled: true
+    threshold_ratio: 0.15
+    hold_time_ms: 250
+
+  phase_drift:
+    enabled: true
+    threshold_rad: 0.35
+    hold_time_ms: 250
+
+  sensor_invalid:
+    enabled: true
+    max_invalid_samples: 3
+
+  missing_sensor:
+    enabled: true
+    max_missing_ms: 500
+
+  coherence_drop:
+    enabled: true
+    threshold: 0.73
+    hold_time_ms: 500
+
+  thermal_overlimit:
+    enabled: true
+    threshold_c: 70.0
+    hold_time_ms: 500
+
+escalation_policy:
+  order:
+    - NORMAL
+    - DEGRADED
+    - SANDBOX
+    - SAFE_HOLD
+    - SHUTDOWN
+
+  rules:
+    - if: "sensor_invalid or missing_sensor"
+      to_state: "SANDBOX"
+
+    - if: "power_mismatch or phase_drift"
+      to_state: "DEGRADED"
+
+    - if: "coherence_drop"
+      to_state: "SAFE_HOLD"
+
+    - if: "thermal_overlimit"
+      to_state: "SHUTDOWN"
+
+watchdog:
+  enabled: true
+  heartbeat_interval_ms: 100
+  timeout_ms: 300
+  on_timeout:
+    to_state: "SAFE_HOLD"
+    then:
+      after_ms: 1000
+      to_state: "SHUTDOWN"
+
+actuator_limits:
+  enabled: true
+
+  power_budget:
+    p_max: 1.0
+    ramp_up_per_s: 0.25
+    ramp_down_per_s: 0.5
+
+  output_clamp:
+    min: 0.0
+    max: 1.0
+
+input_hardening:
+  enabled: true
+  clamp_inputs: true
+  reject_nan_inf: true
+
+  outlier_filter:
+    enabled: true
+    method: "median"
+    window: 5
+
+fallback_behavior:
+  safe_output:
+    mode: "hold_last_safe"
+    max_hold_ms: 2000
+
+  sandbox_mode:
+    coupling_gamma: 0.0
+    damping_zeta: 0.9
+    power_budget_scale: 0.25
+
+integrity_checks:
+  enabled: true
+  require_config_versions: true
+  require_deterministic_seed: true
+
+logging_hooks:
+  emit_guard_events: true
+  include_snapshot_on_state_change: true
+
+  snapshot_fields:
+    - "timestamp"
+    - "guard_state"
+    - "power_mismatch"
+    - "phase_drift"
+    - "coherence"
+    - "sensor_status"
+    - "actuator_output"
