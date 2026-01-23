@@ -1,0 +1,33 @@
+# Example expected output from one controller step (prototype skeleton)
+
+timestamp: "2026-01-23T00:00:00Z"
+controller:
+  name: "AmnionController"
+  version: "0.1.0"
+
+input_echo:
+  temperature: 22.0
+  pressure: 1.0
+  coherence: 0.95
+
+decision:
+  mode: "NORMAL"
+  action: "HOLD"
+  reason: "Inputs within safe nominal range."
+
+outputs:
+  power_budget: 0.40
+  damping: 0.20
+  coupling: 0.80
+  phase_shift_deg: 0.0
+
+safety:
+  allowed: true
+  violations: []
+  score: 0.95
+
+metrics:
+  coherence: 0.95
+  stability_index: 0.92
+  risk_index: 0.08
+  
