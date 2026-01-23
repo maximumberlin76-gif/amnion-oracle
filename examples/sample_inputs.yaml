@@ -1,0 +1,29 @@
+# examples/sample_outputs.yaml
+# Example expected output from one controller step.
+# This is a prototype skeleton output (no hardware control).
+
+step: 1
+status: ok
+
+allowed: true
+decision: "pass"
+
+inputs_echo:
+  temperature: 22.0
+  pressure: 1.0
+  coherence: 0.95
+
+outputs:
+  action: "none"
+  throttle: 0.0
+  mode: "idle"
+
+metrics:
+  coherence: 0.95
+  safety_score: 1.0
+  violations: []
+
+notes:
+  - "Stub controller: logic/flow only."
+  - "Hardware control is not implemented."
+  
