@@ -1,2 +1,4 @@
 pyyaml>=6.0
 jsonschema>=4.0
+referencing>=0.30
+
