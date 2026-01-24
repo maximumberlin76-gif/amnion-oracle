@@ -75,5 +75,3 @@ jobs:
           name: debug-${{ matrix.python-version }}
           path: |
             logs/**
-            tests/output/**
-          if-no-files-found: ignore
