@@ -44,7 +44,7 @@ class AmnionController:
         self.metrics = Metrics(self.cfg.get("metrics", {}), self.log)
         self.runtime = Runtime(self.cfg.get("system", {}), self.log)
 
-        self.log.info("AmnionController initialized")
+        self.log.info("Amnion_Controller initialized")
 
     def step(self, sensors: Dict[str, Any]) -> Dict[str, Any]:
         """
