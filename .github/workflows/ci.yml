@@ -1,4 +1,4 @@
-ame: CI
+name: CI
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,97 +18,15 @@ jobs:
           python-version: "3.11"
 
       - name: Install deps
-        run: |# amnion_oracle/tools/validate_configs.py
-from __future__ import annotations
-
-import json
-import sys
-from pathlib import Path
-
-import yaml
-from jsonschema import Draft202012Validator
-
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CONFIGS_DIR = REPO_ROOT / "configs"
-SCHEMAS_DIR = REPO_ROOT / "schemas"
-
-# config filename -> schema filename
-MAP = {
-    "00_system.yaml": "system.schema.json",
-    "01_interfaces_config.yaml": "interfaces.schema.json",
-    "02_safety.yaml": "safety.schema.json",
-    "03_metrics.yaml": "metrics.schema.json",
-    "04_logging.yaml": "logging.schema.json",
-    "05_profile.yaml": "profile.schema.json",
-    "06_safeguards.yaml": "safeguards.schema.json",
-    "manifest.yaml": "system.schema.json",  # если отдельной схемы нет — временно
-}
-
-def _load_yaml(path: Path) -> dict:
-    with path.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-    if data is None:
-        raise ValueError(f"{path} is empty")
-    if not isinstance(data, dict):
-        raise ValueError(f"{path} must contain a YAML mapping/object")
-    return data
-
-def _load_schema(path: Path) -> dict:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-def validate_one(cfg: Path, schema_path: Path) -> list[str]:
-    data = _load_yaml(cfg)
-    schema = _load_schema(schema_path)
-
-    v = Draft202012Validator(schema)
-    errors = sorted(v.iter_errors(data), key=lambda e: list(e.path))
-
-    msgs: list[str] = []
-    for e in errors:
-        loc = ".".join(map(str, e.path)) if e.path else "<root>"
-        msgs.append(f"{cfg.name}: {loc}: {e.message}")
-    return msgs
-
-def main() -> int:
-    if not CONFIGS_DIR.exists():
-        print(f"[ERR] configs/ not found: {CONFIGS_DIR}")
-        return 2
-    if not SCHEMAS_DIR.exists():
-        print(f"[ERR] schemas/ not found: {SCHEMAS_DIR}")
-        return 2
-
-    total_errors: list[str] = []
-
-    for cfg_name, schema_name in MAP.items():
-        cfg = CONFIGS_DIR / cfg_name
-        schema_path = SCHEMAS_DIR / schema_name
-
-        if not cfg.exists():
-            # не валим сборку если конфиг отсутствует — проект может быть в стадии сборки
-            print(f"[WARN] missing config: {cfg.relative_to(REPO_ROOT)}")
-            continue
-
-        if not schema_path.exists():
-            total_errors.append(f"{cfg.name}: schema missing: {schema_path.relative_to(REPO_ROOT)}")
-            continue
-
-        total_errors.extend(validate_one(cfg, schema_path))
-
-    if total_errors:
-        print("\n[SCHEMA VALIDATION FAILED]")
-        for m in total_errors:
-            print(" -", m)
-        return 1
-
-    print("[OK] All existing configs are valid against schemas.")
-    return 0
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-
+        run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install -r requirements.txt
+
+      - name: Validate configs against schemas
+        run: |
+          python amniom_oracle/tools/validate_configs.py
 
       - name: Run tests
+        run: |
+          python -m pytest -q
+
