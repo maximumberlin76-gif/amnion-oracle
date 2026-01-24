@@ -47,10 +47,11 @@ class AmnionController:
         self.log.info("Amnion_Controller initialized")
 
     def step(self, sensors: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        One control tick:
-        sensors -> safety -> runtime decision -> metrics update -> output actuation
-        """
+    """
+    One control tick:
+    sensors -> safety -> runtime decision -> metrics update -> output
+    """         
+    
         # 1) validate inputs (lightweight)
         safe_sensors = self.safety.sanitize_inputs(sensors)
 
