@@ -64,4 +64,4 @@ class AmnionController:
         self.metrics.update(safe_sensors, safety_state, output)
 
         return output
-```0
+
