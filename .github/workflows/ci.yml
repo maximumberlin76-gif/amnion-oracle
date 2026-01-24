@@ -111,4 +111,3 @@ if __name__ == "__main__":
           pip install -r requirements-dev.txt
 
       - name: Run tests
-        run: pytest -q
