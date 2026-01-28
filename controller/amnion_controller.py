@@ -62,6 +62,7 @@ class AmnionController:
         self.metrics.update(safe_sensors, safety_state, output)
 
         return output
+        
         def compute_coherence(self, sensors: Dict[str, Any]) -> float:
         """
         WARNING: Coherence is a proxy of the Spirit Sphere.
