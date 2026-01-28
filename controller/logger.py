@@ -42,5 +42,5 @@ class JsonLogger:
     def info(self, event: str, data: Optional[Dict[str, Any]] = None, ts: float = 0.0):
         self._emit("INFO", event, data, ts)
 
-    def warn(self, event: str, data: Optional[Dict[str, Any]] = None, ts: float = 0.
+    def warn(self, event: str, data: Optional[Dict[str, Any]] = None, ts: float = 0.0):
              
