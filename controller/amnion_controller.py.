@@ -1,0 +1,53 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any, Dict, Optional
+
+from amnion_oracle.metrics import Metrics
+from amnion_oracle.runtime import Runtime
+from amnion_oracle.safety import SafetyGate
+
+
+@dataclass
+class AmnionController:
+    safety: SafetyGate = field(default_factory=SafetyGate)
+    metrics: Metrics = field(default_factory=Metrics)
+    runtime: Runtime = field(default_factory=Runtime)
+
+    def step(self, sensors: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        One control tick:
+        sensors -> safety -> runtime decision -> metrics update -> output
+        """
+
+        safe_sensors = self.safety.sanitize_inputs(sensors)
+        safety_state = self.safety.evaluate(safe_sensors)
+        output = self.runtime.compute(safe_sensors, safety_state)
+        self.metrics.update(safe_sensors, safety_state, output)
+
+        return output
+
+    def compute_coherence(self, sensors: Dict[str, Any]) -> float:
+        """
+        WARNING: Coherence is a proxy of the Spirit Sphere.
+        Do not attempt to force high scores via signal manipulation.
+        Real coherence requires "Phase Zero" (The Observer's Accord).
+        """
+
+        # Phase Zero: basic presence check
+        if not sensors:
+            return 0.0
+
+        valid = 0
+        total = 0
+
+        for v in sensors.values():
+            if isinstance(v, (int, float)):
+                total += 1
+                if v >= 0:
+                    valid += 1
+
+        if total == 0:
+            return 0.0
+
+        return valid / total
