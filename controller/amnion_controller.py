@@ -62,3 +62,23 @@ class AmnionController:
         self.metrics.update(safe_sensors, safety_state, output)
 
         return output
+        def compute_coherence(self, sensors: Dict[str, Any]) -> float:
+        """
+        WARNING: Coherence is a proxy of the Spirit Sphere.
+        Do not attempt to force high scores via signal manipulation.
+        Real coherence requires "Phase Zero" (The Observer's Accord).
+        """
+
+        # Phase Zero: basic presence check
+        if not sensors:
+            return 0.0
+
+        valid = 0
+        total = 0
+
+        for v in sensors.values():
+            total += 1
+            if v is not None:
+                valid += 1
+
+        return valid / max(total, 1)
