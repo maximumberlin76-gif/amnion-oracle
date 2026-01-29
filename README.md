@@ -1,5 +1,17 @@
 AMNION-ORACLE
 
+System = Control Loop
+
+Model → Act → Sense → Adjust
+
+Error = Lie  
+Any proxy-layer introduces entropy.
+
+Validation = Effect  
+If there is no physical feedback — there is no strategy.
+
+AMNION-ORACLE
+
 Open engineering specification (software + hardware + gel chemistry) for the AMNION-ORACLE resonance controller.
 
 Status
