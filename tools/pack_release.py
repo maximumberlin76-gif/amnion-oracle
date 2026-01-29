@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import os
 import subprocess
 import sys
 from dataclasses import dataclass
