@@ -5,9 +5,19 @@ This document defines mathematical criteria for evaluating dynamic stability (co
 
 1) Fundamental State Variables
 
+Canonical parameters:
+
+G     — control gain
+K     — coupling coefficient
+D     — damping coefficient
+P_max — maximum allowed power
+
+
 For each subsystem `i`, the following parameters are computed:
 
-- Qᵢ (Quality Factor) — ability of a subsystem to retain resonance/coherence.
+Qᵢ (Quality Factor) — dimensionless measure of subsystem coherence and resonance retention (0..1).
+
+
 - P_mismatch — power imbalance:  
   P_mismatch = P_draw − P_in
 - φ_error — phase error relative to system mean phase:  
@@ -31,6 +41,8 @@ where:
 
 Q Update Rule (Smooth Exponential Decay)
 
+If Q falls below Q_crit, Guard layer must trigger Barrier mode (see 03_SAFETY_LOGIC.md).
+
 To avoid discontinuous behavior (“saw-tooth instability”), Q is updated via exponential smoothing:
 
 \[
@@ -53,9 +65,8 @@ S = 1.0 - \left(\frac{P_{draw}}{P_{max}}\right)^2
 
 As `P_draw → P_max`, system gain is smoothly reduced:
 
-\[
-\alpha_{i(active)} = \alpha_i \cdot S
-\]
+[ G_{i(active)} = G_i \cdot S ]
+
 
 This prevents control oscillations and maintains continuity of regulation.
 
@@ -64,11 +75,19 @@ This prevents control oscillations and maintains continuity of regulation.
 
 The system monitors Q in real time and activates defensive modes.
 
-| State | Condition | Action (Protocol) |
-|------|-----------|-------------------|
-| Coherent | Q > 0.8 | Nominal mode, full synchronization |
-| Warning | 0.5 < Q ≤ 0.8 | Enable Soft Throttle, notify node |
-| Critical (Barrier) | Q ≤ Q_crit | Decouple + Damp (isolation + suppression) |
+States:
+
+Coherent:
+    Q > 0.8
+    Nominal mode, full synchronization
+
+Warning:
+    0.5 < Q ≤ 0.8
+    Enable Soft Throttle, notify node
+
+Critical (Barrier):
+    Q ≤ Q_crit
+    Decouple + Damp + Cap
 
 
 5) Engineering Conclusion
@@ -79,3 +98,5 @@ Non-resonant behavior (parasitic power draw or phase deviation) becomes energeti
 
 This converts “ethics-as-stability” into a strictly physical control law:
 mismatch → loss → Q decay → isolation.
+
+No policy layer is allowed to override this chain.
