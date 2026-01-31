@@ -73,4 +73,70 @@ Rules:
 - power clamp triggers correctly
 - watchdog triggers correctly
 - sensor timeout triggers degrade mode
-  
+
+ 9. Resonant cell / capsule material (concept)
+
+Target properties (engineering intent):
+- mechanically stable under cyclic load
+- electrically insulating base (where required)
+- predictable piezoelectric transduction
+- chemically inert / low-degradation carrier medium
+
+Candidate material stack (concept-level reference):
+- Frame / lattice: Ti-6Al-4V (or equivalent titanium alloy class)
+- Piezo layer: AlN thin film (preferred for stability) OR PZT (higher response, higher complexity)
+- Electrode layer: Au / Pt thin film (corrosion-resistant)
+- Carrier medium: hydrogel / polymer gel class with stable viscosity window
+- Optional barrier coat: biocompatible inert coating (concept), to reduce parasitic reactions
+
+Design intent:
+- material layer provides passive resonance + transduction (mechanical ↔ electrical)
+- no active amplification at material level
+- stability first: narrow-band response is allowed, runaway is not
+
+
+10. Hardware-level envelopes (canonical)
+
+These limits are enforced at the actuator boundary (hardware side),
+even if software misbehaves.
+
+10.1 Power envelope
+- P_draw <= P_max_hw
+
+10.2 Voltage envelope
+- V_min <= V <= V_max
+
+10.3 Current envelope
+- I <= I_max
+
+10.4 Thermal envelope
+- T <= T_max
+
+10.5 Actuator hard clamp (non-negotiable)
+- u_hw = clamp(u_cmd, u_min, u_max)
+
+Where:
+- clamp(x, a, b) = min(max(x, a), b)
+
+10.6 Watchdog rule
+If the control loop misses ticks:
+- if tick_miss > N_max -> HARD_DISABLE
+
+10.7 Brownout rule
+If supply collapses:
+- if V < V_min -> SAFE_SHUTDOWN
+
+10.8 Sensor timeout rule (hardware boundary)
+If sensor stream stalls:
+- if sensor_age_ms > sensor_timeout_ms -> DEGRADE_MODE
+- if persistent stall -> HARD_DISABLE (actuation off)
+
+
+11. Minimal validation checklist (hardware)
+
+Pass conditions:
+- stable timing under load (no tick drift beyond tolerance)
+- P_max_hw clamp triggers deterministically
+- watchdog triggers deterministically on stalled loop
+- brownout triggers SAFE_SHUTDOWN
+- sensor timeout triggers DEGRADE_MODE, and does not produce actuation spikes 
