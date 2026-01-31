@@ -31,10 +31,10 @@ Primary invariant: Do no harm (system + operator + environment).
 
 Parameter naming (canonical):
 
-gain        -> G
-coupling    -> K
-damping     -> D
-power limit -> P_max
+- gain        -> G
+- coupling    -> K
+- damping     -> D
+- power limit -> P_max
 
 2. Core safety invariants
 
