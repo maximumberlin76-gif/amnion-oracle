@@ -33,6 +33,7 @@ The system must remain predictable even under:
 2) Test philosophy
 
 2.1 Verification layers
+
 Testing is separated into layers:
 
 1) Unit tests: math, guards, clamping, filters  
@@ -58,7 +59,7 @@ Testing is separated into layers:
 Each run must generate:
 - `test_config.json` (or YAML)
 - `metrics.csv`
-- `events.log`
+- 'events.jsonl
 - `sha256_manifest.txt`
 
 3.2 Canonical hash manifest
@@ -248,6 +249,7 @@ Order for continuous validation:
 9) T10
 10) T09 (nightly)
 
+T00 must always run first.
 
 10) Notes
 
