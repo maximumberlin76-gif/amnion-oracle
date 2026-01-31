@@ -7,7 +7,7 @@ Status: Reference architecture (NOT clinical)
 
 0. Non-medical / non-clinical disclaimer
 AMNION-ORACLE is a concept-level engineering reference.
-It is **NOT** a medical device and **NOT** intended for clinical use.
+It is NOT a medical device and NOT intended for clinical use.
 
 
 1. Hardware goals
@@ -139,4 +139,81 @@ Pass conditions:
 - P_max_hw clamp triggers deterministically
 - watchdog triggers deterministically on stalled loop
 - brownout triggers SAFE_SHUTDOWN
-- sensor timeout triggers DEGRADE_MODE, and does not produce actuation spikes 
+- sensor timeout triggers DEGRADE_MODE, and does not produce actuation spikes
+
+11.1 Mechanical load envelope (structural)
+
+Goal:
+Prevent mechanical fatigue, plastic deformation, or resonance-induced fracture.
+
+Definitions:
+- σ — applied stress
+- σ_yield — yield strength of frame material
+- σ_fatigue — fatigue limit (for cyclic load)
+- N_cycles — expected number of cycles
+
+Constraints:
+
+- σ <= 0.5 * σ_yield
+- σ <= σ_fatigue
+
+For cyclic loading:
+
+- Damage accumulation must satisfy:
+  Σ (n_i / N_i) < 1.0   (Miner’s rule)
+
+Where:
+- n_i = applied cycles at load level i  
+- N_i = allowable cycles at load level i  
+
+Design intent:
+- operate in elastic region only
+- no plastic deformation in normal or fault conditions
+
+Monitoring:
+
+- estimate stress proxy from actuator command and geometry
+- if estimated σ approaches limit -> reduce gain (G ↓) and damping (D ↑)
+
+
+11.2 Resonant constraints (hardware-level)
+
+Goal:
+Avoid resonance runaway and destructive standing waves.
+
+Definitions:
+- f0 — nominal resonance frequency
+- Δf — deviation from f0
+- Q_hw — hardware resonance quality factor
+- Q_hw_max — maximum allowed hardware Q
+- A — oscillation amplitude
+- A_max — maximum safe amplitude
+
+Constraints:
+
+- |Δf| <= Δf_max_hw
+- Q_hw <= Q_hw_max
+- A <= A_max
+
+Soft protection:
+
+- if |Δf| > 0.7 * Δf_max_hw:
+    reduce gain (G ↓)
+    increase damping (D ↑)
+
+Hard protection:
+
+- if |Δf| > Δf_max_hw:
+    HARD_DISABLE
+
+- if A > A_max:
+    HARD_DISABLE
+
+Design intent:
+- hardware never amplifies outside narrow safe band
+- unstable harmonics are physically suppressed
+
+Notes:
+
+- hardware resonance is treated as a filter, not an amplifier
+- amplification happens only in controlled software layer 
