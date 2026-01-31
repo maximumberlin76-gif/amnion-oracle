@@ -4,10 +4,17 @@ Project: AMNION-ORACLE
 Type: Safety / guard logic specification  
 Status: Documentation-first (no clinical use)
 
-## 0. Non-medical / non-clinical disclaimer
+0. Non-medical / non-clinical disclaimer
+ 
+Safety loop position in system:
+
+Sense → Analyze → Estimate → Guard → Policy → Actuate
+
+Guard is evaluated BEFORE any control action.
+If Guard rejects state, system must NOT call Policy().  
 
 AMNION-ORACLE is a concept-level engineering reference.  
-It is **NOT** a medical device and **NOT** intended for clinical use.
+It is NOT a medical device and NOT intended for clinical use.
 
 
 1. Safety goal
@@ -20,16 +27,21 @@ The system must remain stable, predictable, and non-destructive under:
 - external disturbances
 - operator errors
 
-**Primary invariant:** Do no harm (system + operator + environment).
+Primary invariant: Do no harm (system + operator + environment).
 
+Parameter naming (canonical):
 
+gain        -> G
+coupling    -> K
+damping     -> D
+power limit -> P_max
 
 2. Core safety invariants
 
-### I1 — Power constraint
+I1 — Power constraint
 Never exceed power budget:
 - `0 ≤ P_draw ≤ P_max`
-- enforce **soft saturation** (not hard cutoff)
+- enforce soft saturation (not hard cutoff)
 
 I2 — Coherence constraint
 Maintain temporal coherence:
@@ -58,10 +70,14 @@ Every critical decision must be reproducible:
 
 3. Guard states
 
-S0 — Normal mode
-- full operation
-- nominal gains
-- coupling enabled
+State transitions:
+
+S0 -> S1 : threshold exceeded
+S1 -> S2 : severe mismatch OR sensor failure
+S2 -> S3 : repeated violation OR coherence < C_floor
+S2 -> S1 : parameters stabilized
+S1 -> S0 : all metrics within envelope
+S3 -> S0 : manual restart only 
 
 S1 — Warning / throttle
 Triggered when:
@@ -69,10 +85,11 @@ Triggered when:
 - coherence falls below target
 
 Actions:
-- reduce gain (`α ↓`)
-- reduce coupling (`γ ↓`)
-- increase damping (`ζ ↑`)
-- cap power budget
+reduce gain (G ↓)
+reduce coupling (K ↓)
+increase damping (D ↑)
+cap power (P_max ↓)
+    
 
 S2 — Barrier mode (decouple + damp + cap)
 Triggered when:
@@ -163,5 +180,11 @@ This safety logic provides:
 - clear safety states
 - formal barrier mode
 - deterministic reasoning trace
+
+Design principle:
+
+Safety logic is monotonic:
+system may always become more conservative,
+but never more aggressive after a violation.
 
 AMNION-ORACLE remains documentation-first and non-clinical
