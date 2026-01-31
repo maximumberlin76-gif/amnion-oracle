@@ -7,7 +7,7 @@ Status: Documentation-first (no clinical use)
 0. Non-medical / non-clinical disclaimer
 
 AMNION-ORACLE is a concept-level engineering reference.  
-It is **NOT** a medical device and **NOT** intended for clinical use.
+It is NOT a medical device and NOT intended for clinical use.
 
 
 1. Purpose
@@ -88,7 +88,7 @@ Metrics:
 - `mismatch_phase`
 - `C`
 - `Q`
-- stability score `S`
+- stability score S (optional aggregate)
 
 This module must match:
 - `04_STABILITY_METRICS.md`
@@ -101,9 +101,20 @@ Outputs: `control_frame`
 
 Control output examples:
 - power draw request
-- coupling coefficient (γ)
-- damping coefficient (ζ)
-- gain vector (α)
+- coupling coefficient (K)
+- damping coefficient (D)
+- gain (G)
+
+
+
+M6 — Safety Logic (Guard / Barrier)
+...
+Outputs: `guard_frame` + `control_frame` (patched/overridden)
+
+
+
+Tick order (canonical):
+M1 → M2 → M3 → M4 → M6 → M5 → M7 → M8
 
 Hard rule:
 - outputs must always be clamp-safe (no runaway)
@@ -140,6 +151,8 @@ Notes:
 
 
 M8 — Logger (Deterministic)
+- monotonic tick counter
+- no time-based ordering dependency
 Role: write one-line deterministic logs  
 Inputs: all frames  
 Outputs: log stream
