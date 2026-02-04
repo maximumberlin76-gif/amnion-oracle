@@ -158,16 +158,17 @@ Artifacts
 - Raw: `frame.raw`
 - Clean: `frame.clean`
 - Features: `frame.features`
+  
+4.2 Minimal API shape
 
-4.2 Minimal API chape 
-sense() → frame
-preprocess(frame) → features
-estimate(features) → state
-metrics(state) → metrics_frame
-guard(state, metrics_frame) → guarded_state
-control(guarded_state) → control_action
-actuate(control_action)
-log(frame, state, metrics_frame, control_action)
+    sense() → frame
+    preprocess(frame) → features
+    estimate(features) → state
+    metrics(state) → metrics_frame
+    guard(state, metrics_frame) → guarded_state
+    control(guarded_state) → control_action
+    actuate(control_action)
+    log(frame, state, metrics_frame, control_action)
 
 5) Safety envelopes (concept)
 
