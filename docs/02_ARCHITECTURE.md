@@ -10,7 +10,11 @@ Status: Concept / Engineering Spec (NOT a medical device, NOT clinical)
 
 AMNION-ORACLE is a resonance controller architecture: a modular system that stabilizes and steers resonance modes in a coupled medium using a closed-loop pipeline:
 
-sense → analyze → estimate → guard → policy → actuate
+sense → preprocess → estimate → guard → policy → actuate
+
+Tick-cycle (canonical, one line):
+
+sense → preprocess → estimate → metrics → guard → control → actuate → log
 
 Core goals
 - Stability first (no runaway oscillations, no uncontrolled feedback)
@@ -85,6 +89,31 @@ Functions
 - Prevent negative-Q collapse or runaway-Q explosion
 - Enforce soft transitions (avoid “hard cutoff saw”)
 - Emergency Decouple + Damp + Cap (Barrier mode)
+
+Guard state flow (text diagram, no graphics)
+
+Inputs: metrics_frame + state_frame + config
+Output: guard_state + patched control limits (clamp/throttle/decouple/damp/cap)
+
+S0 NORMAL
+  -> S1 THROTTLE      when mismatch exceeds warn thresholds OR coherence trending down
+  -> S2 BARRIER       when severe mismatch OR sensor failure OR Q <= Q_crit
+  -> S3 SAFE_HALT     when repeated barrier entries OR coherence collapse OR multiple sensor faults
+
+S1 THROTTLE
+  action: reduce G, reduce K, increase D, lower P_budget (soft)
+  -> S0 NORMAL        when metrics return inside envelope for N consecutive ticks
+  -> S2 BARRIER       when thresholds are crossed harder OR instability persists
+
+S2 BARRIER (Decouple + Damp + Cap)
+  action: K -> 0 (decouple), D -> high, P_budget -> minimum, freeze fast adaptation loops
+  -> S1 THROTTLE      when stabilized and coherence recovers above floor for N ticks
+  -> S3 SAFE_HALT     when barrier repeats too often OR sensors remain invalid
+
+S3 SAFE_HALT (locked safe mode)
+  action: stop active actuation, keep monitoring + logging only
+  -> S0 NORMAL        manual restart only
+
 
 Canonical rules
 - `mismatch_power = P_draw - P_in`
