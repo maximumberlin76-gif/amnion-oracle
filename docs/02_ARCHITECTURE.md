@@ -84,6 +84,7 @@ State example
 - `S(t) = { A_i(t), φ_i(t), C(t), Δf_i(t), drift(t) }`
 
 3.4 Stability Guard (SG) — non-negotiable safety wall
+
 Functions
 - Clamp energy injection
 - Prevent negative-Q collapse or runaway-Q explosion
