@@ -10,7 +10,7 @@ Status: Concept / Engineering Spec (NOT a medical device, NOT clinical)
 
 AMNION-ORACLE is a resonance controller architecture: a modular system that stabilizes and steers resonance modes in a coupled medium using a closed-loop pipeline:
 
-sense → analyze → estimate → guard → policy → actuate**
+sense → analyze → estimate → guard → policy → actuate
 
 Core goals
 - Stability first (no runaway oscillations, no uncontrolled feedback)
