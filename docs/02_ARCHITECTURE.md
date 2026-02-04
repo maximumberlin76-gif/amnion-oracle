@@ -10,7 +10,7 @@ Status: Concept / Engineering Spec (NOT a medical device, NOT clinical)
 
 AMNION-ORACLE is a resonance controller architecture: a modular system that stabilizes and steers resonance modes in a coupled medium using a closed-loop pipeline:
 
-sense → preprocess → estimate → guard → policy → actuate
+sense → preprocess → estimate → metrics → guard → control → actuate → log
 
 Tick-cycle (canonical, one line):
 
@@ -159,14 +159,15 @@ Artifacts
 - Clean: `frame.clean`
 - Features: `frame.features`
 
-4.2 Minimal API shape
-- `sense() → frame`
-- `analyze(frame) → features`
-- `estimate(features) → state`
-- `guard(state) → allowed_state`
-- `policy(allowed_state) → control_action`
-- `actuate(control_action)`
-
+4.2 Minimal API chape 
+sense() → frame
+preprocess(frame) → features
+estimate(features) → state
+metrics(state) → metrics_frame
+guard(state, metrics_frame) → guarded_state
+control(guarded_state) → control_action
+actuate(control_action)
+log(frame, state, metrics_frame, control_action)
 
 5) Safety envelopes (concept)
 
