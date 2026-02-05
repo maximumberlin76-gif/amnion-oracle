@@ -183,50 +183,52 @@ Before control update:
 If invalid:
 - enter S1/S2 depending on severity
 
-
-8. Logging schema (minimal)
-
-Guard pseudocode (canonical)
+8.Guard pseudocode (canonical)
 
 function guard(state, metrics, config):
 
-    # 0) aliases (canonical names)
-    P_max    = config.P_max
-    P_budget = config.P_budget
-    Q_crit   = config.Q_crit
+    # aliases (canonical names)
+    P_max      = config.P_max
+    P_budget   = config.P_budget
+    Q_crit     = config.Q_crit
     phase_trip = config.phase_trip
     rate_trip  = config.rate_trip
     rate_limit = config.rate_limit
 
+    # helper patches (semantic intent)
+    PATCH_BARRIER  = patch(decouple_K0, increase_D_high, cap_P_budget)      # cap to safe budget
+    PATCH_THROTTLE = patch(reduce_G, reduce_K, increase_D, cap_P_budget)    # soft conservative cap
+    PATCH_NONE     = patch(none)
+
     # 1) sensor validity (highest priority)
     if sensors_invalid(metrics):
-        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+        return S2_BARRIER, PATCH_BARRIER
 
     # 2) power overflow (hard)
     if metrics.P_draw > P_max:
-        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+        return S2_BARRIER, PATCH_BARRIER
 
     # 3) coherence collapse / Q floor (hard)
     if metrics.Q <= Q_crit:
-        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+        return S2_BARRIER, PATCH_BARRIER
 
     # 4) phase runaway (hard)
     if abs(metrics.phase_error) > phase_trip:
-        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+        return S2_BARRIER, PATCH_BARRIER
 
     # 5) rate-of-change (two-tier)
     if abs(metrics.rate_change) > rate_trip:
-        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+        return S2_BARRIER, PATCH_BARRIER
 
     if abs(metrics.rate_change) > rate_limit:
-        return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
+        return S1_THROTTLE, PATCH_THROTTLE
 
     # 6) within envelope -> normal
     if within_envelope(metrics, config):
-        return S0_NORMAL, patch(none)
+        return S0_NORMAL, PATCH_NONE
 
     # 7) default conservative throttle
-    return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
+    return S1_THROTTLE, PATCH_THROTTLE
 
 9. Summary
 
