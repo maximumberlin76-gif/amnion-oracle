@@ -30,10 +30,11 @@ Primary invariant: Do no harm (system + operator + environment).
 
 Parameter naming (canonical):
 
-- gain        -> G
-- coupling    -> K
-- damping     -> D
-- power limit -> P_max
+    gain -> G
+    coupling -> K
+    damping -> D
+    power limit -> P_max
+    power budget -> P_budget
 
 Guard evaluation order (canonical)
 
@@ -121,10 +122,18 @@ Triggered when:
 - sensor failure / instability
 
 Actions:
-- `γ → 0` (decouple)
-- `ζ → high` (strong damping)
-- `P_budget → minimum`
-- freeze fast adaptation loops
+
+    K → 0 (decouple)
+    D → high (strong damping)
+    P_budget → minimum
+    freeze fast adaptation loops
+
+
+Barrier = decouple + damp + cap
+
+decouple: K → 0
+damp: D ↑
+cap: P_budget ↓
 
 S3 — Safe halt / lock
 Triggered when:
