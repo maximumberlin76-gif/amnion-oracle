@@ -214,12 +214,12 @@ function guard(state, metrics, config):
         return S2_BARRIER, patch(decouple, damp, cap)
 
     if abs(metrics.rate_change) > rate_limit:
-        return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap)
+        return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
 
     if metrics.within_envelope():
         return S0_NORMAL, patch(none)
 
-    return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D)
+    return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
 
 9. Summary
 
