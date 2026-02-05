@@ -128,13 +128,6 @@ Actions:
     P_budget → minimum
     freeze fast adaptation loops
 
-
-Barrier = decouple + damp + cap
-
-decouple: K → 0
-damp: D ↑
-cap: P_budget ↓
-
 S3 — Safe halt / lock
 Triggered when:
 - repeated instability
