@@ -89,6 +89,38 @@ Critical (Barrier):
     Q ≤ Q_crit
     Decouple + Damp + Cap
 
+4.1) ABRAXAS-764 Core Metrics Mapping
+
+AZ (Master Oscillator)  -> metrics.f_ref
+RCY (Vector ALU)        -> metrics.intent_vector
+SLOVO (Storage/Matrix) -> metrics.state_integrity
+VOZVRAT (Phase Reset)  -> metrics.phase_error
+Z-Loop (Plasma Loop)   -> metrics.loop_closure
+
+
+4.2) Additional Stability Metrics
+
+metrics.f_ref            — reference resonance frequency
+metrics.intent_vector    — normalized intention / computation vector
+metrics.state_integrity  — storage coherence [0..1]
+metrics.loop_closure     — boolean (true if Z-loop closed)
+
+
+4.3) ABRAXAS Stability Invariants
+
+I6 — Resonance lock  
+|metrics.f_ref − 76.4| ≤ f_tol
+
+I7 — Loop closure  
+metrics.loop_closure == TRUE
+
+I8 — State integrity  
+metrics.state_integrity ≥ integrity_min
+
+
+4.4) Escalation Rule
+
+Violation of any of I6, I7, or I8 → enter S2_BARRIER
 
 5) Engineering Conclusion
 
