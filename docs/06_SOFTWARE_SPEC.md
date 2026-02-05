@@ -15,7 +15,8 @@ It is **NOT** a medical device and **NOT** intended for clinical use.
 - Strict guard separation: control vs safety/safeguards
 - Text-based configuration and stable interfaces
 - Full audit: logs + hashes
-
+  
+Monotonic safety behavior (system may become more conservative, never more aggressive after violation)
 
 2. Runtime modes
 3. M1 — Simulator-only
