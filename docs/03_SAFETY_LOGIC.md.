@@ -1,19 +1,19 @@
-# 03_SAFETY_LOGIC — AMNION-ORACLE
+03_SAFETY_LOGIC — AMNION-ORACLE
 Project: AMNION-ORACLE  
 Type: Safety / guard logic specification  
 Status: Documentation-first (no clinical use)
 
-## 0) Non-medical / non-clinical disclaimer
+0) Non-medical / non-clinical disclaimer
 AMNION-ORACLE is a concept-level engineering reference.  
 It is NOT a medical device and NOT intended for clinical use.
 
-## Safety loop position in system
+Safety loop position in system
 `sense → preprocess → estimate → metrics → guard → control → actuate → log`
 
-Guard is evaluated **BEFORE** any control action.  
-If Guard rejects state, system must **NOT** call `control()`.
+Guard is evaluated BEFORE any control action.  
+If Guard rejects state, system must NOT call `control()`.
 
-## 1) Safety goal
+1) Safety goal
 The system must remain stable, predictable, and non-destructive under:
 - power mismatch
 - phase mismatch / drift
@@ -22,9 +22,9 @@ The system must remain stable, predictable, and non-destructive under:
 - external disturbances
 - operator errors
 
-Primary invariant: **Do no harm** (system + operator + environment).
+Primary invariant: Do no harm (system + operator + environment).
 
-## 2) Parameter naming (canonical)
+2) Parameter naming (canonical)
 - gain -> G
 - coupling -> K
 - damping -> D
@@ -33,7 +33,7 @@ Primary invariant: **Do no harm** (system + operator + environment).
 - power budget min -> P_budget_min
 - power budget soft -> P_budget_soft
 
-## 3) Guard evaluation order (canonical)
+3) Guard evaluation order (canonical)
 Guard processes inputs in strict sequence:
 1. Sensor validity check
 2. Power budget check
@@ -46,33 +46,33 @@ Guard processes inputs in strict sequence:
 No step may be skipped.  
 If any step fails, Guard escalates state before control output is computed.
 
-## 4) Core safety invariants
-**I1 — Power constraint**  
+4) Core safety invariants
+I1 — Power constraint  
 - 0 ≤ P_draw ≤ P_max  
 - soft saturation only (no hard cutoff)
 
-**I2 — Coherence constraint**  
+I2 — Coherence constraint 
 - coherence is never forced to “perfect”  
 - coherence is stabilized by damping + decoupling
 
-**I3 — Phase stability**  
+I3 — Phase stability 
 - phase correction is gradual  
 - no aggressive phase kicks
 
-**I4 — Conservative behavior on uncertainty** (invalid/contradictory sensors)  
+I4 — Conservative behavior on uncertainty (invalid/contradictory sensors)  
 - reduce coupling  
 - reduce gain  
 - cap power  
 - switch to safe mode
 
-**I5 — Deterministic logging**  
+I5 — Deterministic logging  
 Every critical decision logs:
 - timestamp
 - reason codes
 - measurement snapshot
 - hashes where relevant
 
-## 5) Guard escalation priority (highest first)
+5) Guard escalation priority (highest first)
 1. Sensor invalid / missing
 2. Power overflow
 3. Coherence collapse
@@ -81,7 +81,7 @@ Every critical decision logs:
 
 Higher priority conditions always override lower ones.
 
-## 6) Guard states
+6) Guard states
 States:
 - S0_NORMAL
 - S1_THROTTLE
@@ -96,27 +96,27 @@ Transitions:
 - S1 -> S0 : all metrics within envelope
 - S3 -> S0 : manual restart only
 
-### S1 — Warning / throttle
+S1 — Warning / throttle
 Triggered when: mismatch exceeds threshold OR coherence falls below target.  
 Actions: G ↓, K ↓, D ↑, P_budget ↓ (soft cap).
 
-### S2 — Barrier mode (decouple + damp + cap)
+S2 — Barrier mode (decouple + damp + cap)
 Triggered when: mismatch severe OR runaway risk OR sensor failure/instability.  
 Actions: K -> 0, D -> high, P_budget -> minimum, freeze fast adaptation loops.
 
-### S3 — Safe halt / lock
+S3 — Safe halt / lock
 Triggered when: repeated instability OR multiple sensor failures OR coherence < floor.  
 Actions: stop active control output; keep logging + minimal monitoring; require manual restart.
 
-## 7) Barrier definition (canonical)
-Barrier = **decouple + damp + cap**
+7) Barrier definition (canonical)
+Barrier = decouple + damp + cap
 - decouple: K -> 0
 - damp: D ↑
 - cap: P_budget ↓
 
 Barrier ≠ phase flip (metaphor only).
 
-## 8) Anti-oscillation rule
+8) Anti-oscillation rule
 Hard cutoff creates oscillation (“saw behavior”). Therefore:
 - use saturator (clamp)
 - adaptive throttle near limits
@@ -126,12 +126,12 @@ Recommended:
 - `P_draw = clamp(P_draw, 0, P_max)`
 - reduce alpha as `P_draw -> P_max`
 
-## 9) Safe parameter floors
+9) Safe parameter floors
 - `Q = max(Q_min, Q + ΔQ)`
 - Q must never go negative
 - no runaway compensations
 
-## 10) Sensor sanity checks
+10) Sensor sanity checks
 Before control update:
 - range checks
 - derivative checks (jumps)
@@ -140,7 +140,7 @@ Before control update:
 
 If invalid -> enter S1 or S2 depending on severity.
 
-## 11) Logging schema (minimal)
+11) Logging schema (minimal)
 Each guard decision logs:
 - ts
 - state
@@ -150,7 +150,7 @@ Each guard decision logs:
 - action_codes[]
 - hash(snapshot)
 
-## 12) Guard function (canonical)
+12) Guard function (canonical)
 Inputs: `state, metrics, config`  
 Outputs: `(guard_state, patch)`
 
