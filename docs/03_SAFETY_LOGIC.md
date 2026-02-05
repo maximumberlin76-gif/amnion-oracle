@@ -36,7 +36,7 @@ Parameter naming (canonical):
     power limit -> P_max
     power budget -> P_budget
     power budget min -> P_budget_min
-    power budget soft ->   P_budget_soft
+    power budget soft -> P_budget_soft
 
 Guard evaluation order (canonical)
 
