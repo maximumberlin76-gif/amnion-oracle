@@ -55,8 +55,7 @@ If any step fails, Guard escalates state before control output is computed.
 
 2. Core safety invariants
 
-I1 — Power constraint
-Never exceed power budget:
+I1 — Power constraint Never exceed power limit:
 - `0 ≤ P_draw ≤ P_max`
 - enforce soft saturation (not hard cutoff)
 
