@@ -30,12 +30,12 @@ Primary invariant: Do no harm (system + operator + environment).
 
 Parameter naming (canonical):
 
-    gain -> G
-    coupling -> K
-    damping -> D
-    power limit -> P_max
-    power budget -> P_budget
-    power budget min -> P_budget_min
+gain -> G
+coupling -> K
+damping -> D
+power limit -> P_max
+power budget -> P_budget
+power budget min -> P_budget_min
 power budget soft -> P_budget_soft
 
 Guard evaluation order (canonical)
