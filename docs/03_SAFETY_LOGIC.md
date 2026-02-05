@@ -216,6 +216,9 @@ function guard(state, metrics, config):
     if abs(metrics.rate_change) > rate_limit:
         return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
 
+if sensors_valid(metrics) and metrics.Q > Q_crit and metrics.within_envelope():
+    return S0_NORMAL, patch(none)
+
     if metrics.within_envelope():
         return S0_NORMAL, patch(none)
 
