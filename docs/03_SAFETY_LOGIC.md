@@ -211,6 +211,12 @@ function guard(state, metrics, config):
         return S2_BARRIER, patch(decouple, damp, cap)
 
     if abs(metrics.phase_error) > phase_trip:
+
+    if abs(metrics.rate_change) > rate_trip:
+    return S2_BARRIER, patch(decouple, damp, cap)
+
+if abs(metrics.rate_change) > rate_limit:
+    return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
         return S2_BARRIER, patch(decouple, damp, cap)
 
     if abs(metrics.rate_change) > rate_limit:
