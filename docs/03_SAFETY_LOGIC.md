@@ -197,37 +197,10 @@ Each control decision logs:
 - `action_codes[]`
 - `hash(snapshot)`
 
-Guard pseudocode (canonical)
-
-function guard(state, metrics, config):
-
-    if sensors_invalid(metrics):
-        return S2_BARRIER, patch(decouple, damp, cap)
-
-    if metrics.P_draw > P_max:
-        return S2_BARRIER, patch(decouple, damp, cap)
-
-    if metrics.Q <= Q_crit:
-        return S2_BARRIER, patch(decouple, damp, cap)
-
-    if abs(metrics.phase_error) > phase_trip:
-
-    if abs(metrics.rate_change) > rate_trip:
+if abs(metrics.rate_change) > rate_trip:
     return S2_BARRIER, patch(decouple, damp, cap)
 
 if abs(metrics.rate_change) > rate_limit:
-    return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
-        return S2_BARRIER, patch(decouple, damp, cap)
-
-    if abs(metrics.rate_change) > rate_limit:
-        return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
-
-if sensors_valid(metrics) and metrics.Q > Q_crit and metrics.within_envelope():
-    return S0_NORMAL, patch(none)
-
-    if metrics.within_envelope():
-        return S0_NORMAL, patch(none)
-
     return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
 
 9. Summary
