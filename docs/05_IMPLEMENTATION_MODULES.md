@@ -31,7 +31,7 @@ Main goal:
 
 3. Tick order (canonical)
 
-M1 → M2 → M3 → M4 → M5 → M6 → M7 → M8
+M0 → M1 → M2 → M3 → M4 → M5 → M6 → M7 → M8
 
 Rule: Guard (M6) is evaluated BEFORE actuation (M7) and may override the control output.
 No module may skip M6.
