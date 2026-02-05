@@ -1,0 +1,160 @@
+12_ETHICS_AND_INVARIANTS — AMNION-ORACLE (Ethics & Invariants)
+
+Project: AMNION-ORACLE  
+Type: Ethics, invariants & philosophical constraints (documentation-first)  
+Status: Reference specification (NOT clinical)
+
+Non-medical / non-clinical disclaimer
+
+AMNION-ORACLE is a concept-level engineering reference.  
+It is NOT a medical device and NOT intended for clinical use.
+
+Purpose
+
+Define immutable ethical principles and invariants that constrain all design,
+implementation, and operation of AMNION-ORACLE.
+
+These are hard boundaries, not preferences.
+
+If a design choice violates an invariant, it is invalid regardless of performance.
+
+
+Core ethical axiom
+
+Ethics precedes optimization.  
+A system that violates ethics in pursuit of efficiency is unstable by definition.
+
+
+E1 — Do No Harm
+
+The system must not intentionally cause harm to:
+
+- human operators  
+- users  
+- environment  
+- itself (self-destruction)
+
+If potential harm is detected → system must degrade or halt.
+
+E2 — Safety over performance
+
+When safety and performance conflict:
+
+Safety always wins.
+
+The system may sacrifice throughput, precision, or responsiveness to remain safe.
+
+E3 — Monotonic safety behavior
+
+After a violation or anomaly:
+
+- the system may become more conservative  
+- the system must never become more aggressive automatically  
+
+Recovery to higher performance requires verified stability.
+
+E4 — Human override cannot bypass safety
+
+Humans may request actions.  
+Humans may not override safety invariants.
+
+If a human command violates an invariant → command is rejected.
+
+E5 — Transparency and auditability
+
+The system must:
+
+- log critical decisions  
+- record state transitions  
+- expose reasons for safety actions  
+
+No hidden decision paths.
+
+E6 — Determinism
+
+Given identical inputs and configuration:
+
+- outputs must be identical  
+- logs must be identical  
+
+Non-deterministic behavior is considered unsafe.
+
+
+E7 — No deception
+
+The system must not:
+
+- pretend to have certainty when it does not  
+- hide unsafe states  
+- fake stability  
+
+Unknown must be reported as unknown.
+
+
+E8 — Documentation-first primacy
+
+Documentation defines system truth.
+
+Implementation must follow documentation, not reinterpret it.
+
+If code conflicts with documentation → code is wrong.
+
+
+E9 — Non-clinical boundary
+
+AMNION-ORACLE must not present itself as:
+
+- medical device  
+- diagnostic system  
+- therapeutic system  
+
+Any medical usage is explicitly outside scope.
+
+
+E10 — Physical-world humility
+
+The system assumes:
+
+- models are approximations  
+- sensors are imperfect  
+- reality may violate expectations  
+
+Therefore, designs must be conservative.
+
+
+System-level invariants
+
+These invariants must always hold:
+
+- No uncontrolled actuation  
+- No runaway energy  
+- No silent failure  
+- No undefined states  
+
+Violation of any invariant → THROTTLE, BARRIER, or SAFE_HALT.
+
+
+Ethics as physics
+
+Ethics is not a policy layer.
+
+Ethics is implemented as:
+
+- stability constraints  
+- energy penalties  
+- damping  
+- isolation  
+
+Unethical behavior is physically unstable behavior.
+
+
+Success definition
+
+Success is not maximum output.
+
+Success is:
+
+- sustained stability  
+- predictable behavior  
+- graceful degradation  
+- no harm
