@@ -36,6 +36,21 @@ Parameter naming (canonical):
 - damping     -> D
 - power limit -> P_max
 
+Guard evaluation order (canonical)
+
+Guard processes inputs in strict sequence:
+
+1. Sensor validity check
+2. Power budget check
+3. Phase mismatch check
+4. Coherence / Q check
+5. Rate-of-change check
+6. State transition decision
+7. Output patching (clamp / throttle / decouple / damp / cap)
+
+No step may be skipped.
+If any step fails, Guard escalates state before control output is computed.
+
 2. Core safety invariants
 
 I1 — Power constraint
@@ -67,6 +82,15 @@ Every critical decision must be reproducible:
 - measurement snapshot
 - hashes where relevant
 
+Guard escalation priority (highest first):
+
+1. Sensor invalid / missing
+2. Power overflow
+3. Coherence collapse
+4. Phase runaway
+5. Rate-of-change violation
+
+Higher priority conditions always override lower ones.
 
 3. Guard states
 
