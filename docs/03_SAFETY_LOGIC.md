@@ -144,8 +144,6 @@ Actions:
 Barrier ≠ phase flip (metaphor only).  
 Engineering definition:
 
-> Barrier = decouple + damp + cap
-
 Barrier = decouple + damp + cap
 
     decouple: K → 0
