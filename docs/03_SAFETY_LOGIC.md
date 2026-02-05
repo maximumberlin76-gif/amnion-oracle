@@ -183,32 +183,36 @@ Before control update:
 If invalid:
 - enter S1/S2 depending on severity
 
-8.Guard pseudocode (canonical)
+8.8. Guard function (canonical)
+
+# Canonical function: guard()
+# Inputs : state, metrics, config
+# Outputs: (guard_state, patch)
 
 function guard(state, metrics, config):
 
-    aliases (canonical names)
-    P_max       = config.P_max
-    P_budget    = config.P_budget
-    P_budget_min  = config.P_budget_min   minimum safe budget
-    P_budget_soft = config.P_budget_soft     conservative soft cap
-    Q_crit      = config.Q_crit
-    phase_trip  = config.phase_trip
-    rate_trip   = config.rate_trip
-    rate_limit  = config.rate_limit
+    # ===== Aliases (canonical names) =====
+    P_max          = config.P_max
+    P_budget_min   = config.P_budget_min
+    P_budget_soft  = config.P_budget_soft
 
-    helper patches (semantic intent)
-    PATCH_NONE     = patch(none)
+    Q_crit     = config.Q_crit
+    phase_trip = config.phase_trip
+    rate_trip  = config.rate_trip
+    rate_limit = config.rate_limit
 
-    # Barrier patch: decouple + damp + cap (hard)
-    PATCH_BARRIER  = patch(
-        set_K(0),               decouple
-        set_D_high(),           strong damping
+    # ===== Patch definitions =====
+    PATCH_NONE = patch(none)
+
+    # Barrier = decouple + damp + cap (hard)
+    PATCH_BARRIER = patch(
+        set_K(0),                 # decouple
+        set_D_high(),             # strong damping
         set_P_budget(P_budget_min),
         freeze_fast_adaptation()
     )
 
-    Throttle patch: reduce + soften caps (soft)
+    # Throttle = conservative soft limitation
     PATCH_THROTTLE = patch(
         reduce_G(),
         reduce_K(),
@@ -216,34 +220,34 @@ function guard(state, metrics, config):
         set_P_budget(P_budget_soft)
     )
 
-    1) sensor validity (highest priority)
+    # ===== 1) Sensor validity (highest priority) =====
     if sensors_invalid(metrics):
         return S2_BARRIER, PATCH_BARRIER
 
-    2) power overflow (hard)
+    # ===== 2) Power overflow =====
     if metrics.P_draw > P_max:
         return S2_BARRIER, PATCH_BARRIER
 
-    3) coherence/Q collapse (hard)
+    # ===== 3) Coherence / Q collapse =====
     if metrics.Q <= Q_crit:
         return S2_BARRIER, PATCH_BARRIER
 
-    4) phase runaway (hard)
+    # ===== 4) Phase runaway =====
     if abs(metrics.phase_error) > phase_trip:
         return S2_BARRIER, PATCH_BARRIER
 
-    5) rate-of-change (two-tier: barrier then throttle)
+    # ===== 5) Rate-of-change (two-tier) =====
     if abs(metrics.rate_change) > rate_trip:
         return S2_BARRIER, PATCH_BARRIER
 
     if abs(metrics.rate_change) > rate_limit:
         return S1_THROTTLE, PATCH_THROTTLE
 
-    6) within envelope -> normal
+    # ===== 6) Normal envelope =====
     if within_envelope(metrics, config):
         return S0_NORMAL, PATCH_NONE
 
-    7) default conservative throttle
+    # ===== 7) Default conservative =====
     return S1_THROTTLE, PATCH_THROTTLE
 
 9. Summary
