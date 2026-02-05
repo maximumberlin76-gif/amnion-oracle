@@ -8,10 +8,9 @@ Status: Documentation-first (no clinical use)
  
 Safety loop position in system:
 
-Sense → Analyze → Estimate → Guard → Policy → Actuate
+sense → preprocess → estimate → metrics → guard → control → actuate → log
 
-Guard is evaluated BEFORE any control action.
-If Guard rejects state, system must NOT call Policy().  
+Guard is evaluated BEFORE any control action. If Guard rejects state, system must NOT call control().
 
 AMNION-ORACLE is a concept-level engineering reference.  
 It is NOT a medical device and NOT intended for clinical use.
@@ -108,12 +107,12 @@ Triggered when:
 - mismatch exceeds threshold
 - coherence falls below target
 
-Actions:
-reduce gain (G ↓)
-reduce coupling (K ↓)
-increase damping (D ↑)
-cap power (P_max ↓)
-    
+
+ Actions:
+    reduce gain (G ↓)
+    reduce coupling (K ↓)
+    increase damping (D ↑)
+    cap power budget (P_budget ↓)   
 
 S2 — Barrier mode (decouple + damp + cap)
 Triggered when:
@@ -147,9 +146,11 @@ Engineering definition:
 
 > Barrier = decouple + damp + cap
 
-- decouple: `γ → 0`
-- damp: `ζ ↑`
-- cap: `P_budget ↓`
+Barrier = decouple + damp + cap
+
+    decouple: K → 0
+    damp: D ↑
+    cap: P_budget ↓
 
 
 5. Anti-oscillation rule
@@ -196,6 +197,29 @@ Each control decision logs:
 - `action_codes[]`
 - `hash(snapshot)`
 
+Guard pseudocode (canonical)
+
+function guard(state, metrics, config):
+
+    if sensors_invalid(metrics):
+        return S2_BARRIER, patch(decouple, damp, cap)
+
+    if metrics.P_draw > P_max:
+        return S2_BARRIER, patch(decouple, damp, cap)
+
+    if metrics.Q <= Q_crit:
+        return S2_BARRIER, patch(decouple, damp, cap)
+
+    if abs(metrics.phase_error) > phase_trip:
+        return S2_BARRIER, patch(decouple, damp, cap)
+
+    if abs(metrics.rate_change) > rate_limit:
+        return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap)
+
+    if metrics.within_envelope():
+        return S0_NORMAL, patch(none)
+
+    return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D)
 
 9. Summary
 
