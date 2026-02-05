@@ -139,8 +139,6 @@ Actions:
 - keep logging + minimal monitoring
 - require manual restart
 
-
-
 4. Barrier definition (canonical)
 
 Barrier ≠ phase flip (metaphor only).  
@@ -188,19 +186,46 @@ If invalid:
 
 8. Logging schema (minimal)
 
-Each control decision logs:
-- `ts`
-- `state`
-- `P_draw, P_in, mismatch_power`
-- `φ, φ_avg, mismatch_phase`
-- `Q, coherence`
-- `action_codes[]`
-- `hash(snapshot)`
+Guard pseudocode (canonical)
 
-if abs(metrics.rate_change) > rate_trip:
-    return S2_BARRIER, patch(decouple, damp, cap)
+function guard(state, metrics, config):
 
-if abs(metrics.rate_change) > rate_limit:
+    # 0) aliases (canonical names)
+    P_max    = config.P_max
+    P_budget = config.P_budget
+    Q_crit   = config.Q_crit
+    phase_trip = config.phase_trip
+    rate_trip  = config.rate_trip
+    rate_limit = config.rate_limit
+
+    # 1) sensor validity (highest priority)
+    if sensors_invalid(metrics):
+        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+
+    # 2) power overflow (hard)
+    if metrics.P_draw > P_max:
+        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+
+    # 3) coherence collapse / Q floor (hard)
+    if metrics.Q <= Q_crit:
+        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+
+    # 4) phase runaway (hard)
+    if abs(metrics.phase_error) > phase_trip:
+        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+
+    # 5) rate-of-change (two-tier)
+    if abs(metrics.rate_change) > rate_trip:
+        return S2_BARRIER, patch(decouple_K0, increase_D_high, cap_P_budget_min)
+
+    if abs(metrics.rate_change) > rate_limit:
+        return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
+
+    # 6) within envelope -> normal
+    if within_envelope(metrics, config):
+        return S0_NORMAL, patch(none)
+
+    # 7) default conservative throttle
     return S1_THROTTLE, patch(reduce_G, reduce_K, increase_D, cap_P_budget)
 
 9. Summary
