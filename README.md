@@ -52,10 +52,12 @@ Quick start (reference)
 3) See controller implementation:
    `controller/amnion_controller.py`
 
+```
 git clone https://github.com/maximumberlin76/amnion-oracle.git
 cd amnion-oracle
 chmod +x run.sh
 ./run.sh
+```
 
 License
 Apache-2.0
