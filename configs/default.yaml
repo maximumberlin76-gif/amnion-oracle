@@ -1,0 +1,34 @@
+# AMNION-ORACLE default configuration
+
+system:
+  name: amnion-oracle
+  mode: simulator
+  tick_hz: 10
+
+logging:
+  level: INFO
+  file: logs/amnion.log
+  console: true
+
+safety:
+  thresholds:
+    max_temperature: 80.0
+    max_voltage: 5.5
+    max_current: 2.0
+    max_entropy: 0.25
+  escalation:
+    throttle_after: 1
+    barrier_after: 3
+    safe_halt_after: 5
+
+controller:
+  damping_factor: 0.6
+  aggressiveness: 0.5
+
+runtime:
+  deterministic: true
+  seed: 764
+
+metrics:
+  enabled: true
+  export_interval_sec: 10
