@@ -50,4 +50,5 @@ class AmnionController:
         if total == 0:
             return 0.0
 
-        return valid / total
+        return 
+valid / total
