@@ -24,8 +24,10 @@ class MetricsConfig:
 class Metrics:
     """
     Lightweight runtime metrics collector.
-    - Compatible with AmnionController.step(): self.metrics.update(sensors, safety_state, output)
-    - Bounded history, last snapshot, counters.
+
+    Compatibility:
+      - update(sensors, safety_state, output)
+      - on_tick(sensors, safety_state, output)  # alias
     """
 
     cfg: MetricsConfig = field(default_factory=MetricsConfig)
@@ -52,8 +54,8 @@ class Metrics:
         self.ticks += 1
 
         # Accept both styles:
-        # - safety_state["ok"] boolean (if your SafetyGate provides it)
-        # - allow_control / state fallback (if it doesn't)
+        # - safety_state["ok"] boolean
+        # - allow_control + state fallback
         ok = safety_state.get("ok")
         if ok is None:
             allow_control = bool(safety_state.get("allow_control", True))
@@ -82,7 +84,6 @@ class Metrics:
             "mismatch_power": safety_state.get("mismatch_power"),
             "mismatch_phase": safety_state.get("mismatch_phase"),
             "flags": list(safety_state.get("flags", [])) if safety_state.get("flags") is not None else [],
-            # Keep output machine-readable but avoid exploding history size
             "u_cmd": output.get("u_cmd"),
             "G": output.get("G"),
             "K": output.get("K"),
@@ -101,6 +102,15 @@ class Metrics:
                 self.log.debug(f"metrics tick={self.ticks} ok={bool(ok)} violations={self.violations}")
             except Exception:
                 pass
+
+    # Alias for older controller code (so nothing breaks)
+    def on_tick(
+        self,
+        sensors: Dict[str, Any],
+        safety_state: Dict[str, Any],
+        output: Dict[str, Any],
+    ) -> None:
+        self.update(sensors, safety_state, output)
 
     def snapshot(self) -> Dict[str, Any]:
         return {
