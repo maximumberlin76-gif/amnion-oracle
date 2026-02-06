@@ -79,4 +79,5 @@ class Metrics:
         if n is None:
             return list(self.history)
         n = max(0, int(n))
-        return self.history[-n:]
+        return sel
+        f.history[-n:]
