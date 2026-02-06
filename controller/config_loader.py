@@ -7,10 +7,9 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-
 DEFAULT_CONFIG_DIR = Path(__file__).resolve().parent.parent / "configs"
 
-DEFAULT_CONFIG_FILES = [
+DEFAULT_CONFIG_FILES: List[str] = [
     "00_system.yaml",
     "01_interfaces.yaml",
     "02_safety.yaml",
@@ -39,11 +38,6 @@ def _read_yaml(path: Path) -> Dict[str, Any]:
 
 
 def _deep_merge(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Deep merge dicts:
-    - dict + dict -> merge recursively
-    - otherwise patch overrides base
-    """
     out = dict(base)
     for k, v in patch.items():
         if k in out and isinstance(out[k], dict) and isinstance(v, dict):
@@ -54,12 +48,9 @@ def _deep_merge(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _validate_basic(cfg: Dict[str, Any]) -> None:
-    # Minimal sanity checks (без фанатизма)
     if "version" not in cfg:
         cfg["version"] = "0.1"
 
-    # Optional guardrails
-    # Ensure blocks exist
     cfg.setdefault("system", {})
     cfg.setdefault("interfaces", {})
     cfg.setdefault("safety", {})
@@ -80,12 +71,12 @@ def load_config(
     config_dir: Optional[Path] = None,
     files: Optional[List[str]] = None,
 ) -> LoadedConfig:
-    """
-    Load AMNION-ORACLE configuration from YAML files in /configs.
-    Returns merged dict + metadata.
-    """
     cfg_dir = (config_dir or DEFAULT_CONFIG_DIR).resolve()
-    cfg_files = files or DEFAULT_CONFIG_FILES
+
+    # IMPORTANT: copy list, and treat empty list as error (usually accidental)
+    cfg_files = list(files) if files is not None else list(DEFAULT_CONFIG_FILES)
+    if not cfg_files:
+        raise ConfigError("No config files specified (files=[]).")
 
     merged: Dict[str, Any] = {}
     used_files: List[str] = []
@@ -98,21 +89,12 @@ def load_config(
 
     _validate_basic(merged)
 
-    return LoadedConfig(
-        config_dir=cfg_dir,
-        files=used_files,
-        data=merged,
-    )
+    return LoadedConfig(config_dir=cfg_dir, files=used_files, data=merged)
 
 
 def load_manifest(config_dir: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Optional: read configs/manifest.yaml if present.
-    Not fatal if missing.
-    """
     cfg_dir = (config_dir or DEFAULT_CONFIG_DIR).resolve()
     p = cfg_dir / "manifest.yaml"
     if not p.exists():
         return {}
-    data = _read_yaml(p)
-    return data
+    return _read_yaml(p)
