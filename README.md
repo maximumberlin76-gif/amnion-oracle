@@ -41,7 +41,7 @@ Planned / future folders
 - `/gel` — gel chemistry spec  
 - `/safety` — hazards, risk controls, test protocols
 
-Quick start (reference)
+Quick start 
 
 1) Read configuration:
    `configs/default.yaml`
