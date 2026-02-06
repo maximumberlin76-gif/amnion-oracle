@@ -5,71 +5,106 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
+def _to_float(x: Any) -> Optional[float]:
+    if x is None:
+        return None
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+@dataclass
+class MetricsConfig:
+    enabled: bool = True
+    max_history: int = 512
+
+
 @dataclass
 class Metrics:
     """
     Lightweight runtime metrics collector.
-    Stores last tick summary + history (bounded).
+    - Compatible with AmnionController.step(): self.metrics.update(sensors, safety_state, output)
+    - Bounded history, last snapshot, counters.
     """
-    cfg: Dict[str, Any]
-    log: Any = None
 
-    enabled: bool = True
-    max_history: int = 512
+    cfg: MetricsConfig = field(default_factory=MetricsConfig)
+    log: Any = None
 
     ticks: int = 0
     violations: int = 0
     last: Dict[str, Any] = field(default_factory=dict)
     history: List[Dict[str, Any]] = field(default_factory=list)
 
-    def __post_init__(self) -> None:
-        self.enabled = bool(self.cfg.get("enabled", True))
-        self.max_history = int(self.cfg.get("max_history", self.max_history))
-
-    def on_tick(
+    def update(
         self,
         sensors: Dict[str, Any],
         safety_state: Dict[str, Any],
         output: Dict[str, Any],
     ) -> None:
-        if not self.enabled:
+        if not self.cfg.enabled:
             return
+
+        sensors = sensors or {}
+        safety_state = safety_state or {}
+        output = output or {}
 
         self.ticks += 1
 
-        ok = bool(safety_state.get("ok", True))
-        if not ok:
+        # Accept both styles:
+        # - safety_state["ok"] boolean (if your SafetyGate provides it)
+        # - allow_control / state fallback (if it doesn't)
+        ok = safety_state.get("ok")
+        if ok is None:
+            allow_control = bool(safety_state.get("allow_control", True))
+            state = str(safety_state.get("state", "S0_NORMAL"))
+            ok = allow_control and (state not in ("S2_BARRIER", "S3_SAFE_HALT"))
+
+        if not bool(ok):
             self.violations += 1
+
+        # Normalize common sensor names (support both old/new keys)
+        coherence = sensors.get("coherence")
+        phase = sensors.get("phase")
+        power_in = sensors.get("power_in", sensors.get("P_in"))
+        power_draw = sensors.get("power_draw", sensors.get("P_draw"))
 
         summary = {
             "tick": self.ticks,
-            "ok": ok,
+            "ok": bool(ok),
             "violations_total": self.violations,
-            "coherence": sensors.get("coherence"),
-            "phase": sensors.get("phase"),
-            "power_in": sensors.get("power_in"),
-            "power_draw": sensors.get("power_draw"),
+            "state": safety_state.get("state"),
+            "allow_control": safety_state.get("allow_control"),
+            "coherence": _to_float(coherence) if coherence is not None else coherence,
+            "phase": _to_float(phase) if phase is not None else phase,
+            "power_in": _to_float(power_in) if power_in is not None else power_in,
+            "power_draw": _to_float(power_draw) if power_draw is not None else power_draw,
             "mismatch_power": safety_state.get("mismatch_power"),
             "mismatch_phase": safety_state.get("mismatch_phase"),
-            "output": output,
-            "flags": list(safety_state.get("flags", [])),
+            "flags": list(safety_state.get("flags", [])) if safety_state.get("flags") is not None else [],
+            # Keep output machine-readable but avoid exploding history size
+            "u_cmd": output.get("u_cmd"),
+            "G": output.get("G"),
+            "K": output.get("K"),
+            "D": output.get("D"),
+            "P_budget": output.get("P_budget"),
         }
 
         self.last = summary
         self.history.append(summary)
-        if len(self.history) > self.max_history:
-            self.history = self.history[-self.max_history :]
+
+        if len(self.history) > self.cfg.max_history:
+            self.history = self.history[-self.cfg.max_history :]
 
         if self.log:
-            # keep logging minimal and machine-readable
             try:
-                self.log.debug(f"metrics.tick={self.ticks} ok={ok} violations={self.violations}")
+                self.log.debug(f"metrics tick={self.ticks} ok={bool(ok)} violations={self.violations}")
             except Exception:
                 pass
 
     def snapshot(self) -> Dict[str, Any]:
         return {
-            "enabled": self.enabled,
+            "enabled": self.cfg.enabled,
             "ticks": self.ticks,
             "violations": self.violations,
             "last": self.last,
@@ -79,5 +114,6 @@ class Metrics:
         if n is None:
             return list(self.history)
         n = max(0, int(n))
-        return sel
-        f.history[-n:]
+        if n == 0:
+            return []
+        return self.history[-n:]
