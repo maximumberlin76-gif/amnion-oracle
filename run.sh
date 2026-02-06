@@ -1,40 +1,28 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
+
+CONFIG_DIR="configs"
+TICKS="${TICKS:-3}"
+
+# Prefer python3 if available
+PY="${PYTHON:-python3}"
+if ! command -v "$PY" >/dev/null 2>&1; then
+  PY="python"
+fi
+
+if ! command -v "$PY" >/dev/null 2>&1; then
+  echo "[ERROR] python/python3 not found"
+  exit 1
+fi
+
+if [ ! -d "$CONFIG_DIR" ]; then
+  echo "[ERROR] Config dir not found: $CONFIG_DIR"
+  exit 1
+fi
 
 echo "[AMNION] Boot sequence started..."
+echo "[AMNION] Using config dir: $CONFIG_DIR"
+echo "[AMNION] Demo ticks: $TICKS"
 
-# Check python
-if ! command -v python3 &>/dev/null; then
-  echo "[ERROR] python3 not found"
-  exit 1
-fi
-
-# Create venv if not exists
-if [ ! -d ".venv" ]; then
-  echo "[AMNION] Creating virtual environment..."
-  python3 -m venv .venv
-fi
-
-# Activate venv
-source .venv/bin/activate
-
-# Install deps if requirements.txt exists
-if [ -f "requirements.txt" ]; then
-  echo "[AMNION] Installing dependencies..."
-  pip install -r requirements.txt
-else
-  echo "[WARN] requirements.txt not found, skipping"
-fi
-
-# Check config
-CONFIG_PATH="configs/default.yaml"
-
-if [ ! -f "$CONFIG_PATH" ]; then
-  echo "[ERROR] Config not found: $CONFIG_PATH"
-  exit 1
-fi
-
-echo "[AMNION] Using config: $CONFIG_PATH"
-
-# Run controller
-python -m controller.amnion_controller --config "$CONFIG_PATH"
+# Run package entrypoint (controller/__main__.py)
+"$PY" -m controller --config-dir "$CONFIG_DIR" --ticks "$TICKS"
