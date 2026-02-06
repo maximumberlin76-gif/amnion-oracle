@@ -1,4 +1,5 @@
-AMNION-ORACLE
+AMNION-ORACLE  
+Documentation-first resonance control architecture.
 
 System = Control Loop
 
@@ -24,17 +25,37 @@ Safety & Scope (Read first)
 - Any future prototypes (if any) must follow legal/ethical requirements, certified labs, and independent safety review.
 
 Repository structure
-- `/docs` — diagrams, flowcharts, rationale
-- `/specs` — formal specifications (YAML + markdown)
-- `/controller` — controller architecture (interfaces, state machine, safety logic)
-- `/hardware` — enclosure/materials/sensors
-- `/gel` — gel chemistry spec (requirements/tolerances/tests)
+
+- `/docs` — diagrams, flowcharts, rationale  
+- `/configs` — configuration files (YAML)  
+- `/controller` — controller architecture (interfaces, state machine, safety logic)  
+- `/tests` — test protocols  
+- `/schemas` — data / config schemas  
+- `/tools` — helper utilities  
+- `/examples` — usage examples  
+
+Planned / future folders
+
+- `/specs` — formal specifications  
+- `/hardware` — enclosure/materials/sensors  
+- `/gel` — gel chemistry spec  
 - `/safety` — hazards, risk controls, test protocols
 
-Quick start (for readers)
-1) Read: `specs/system.yaml`
-2) Review controller flow: `docs/flowchart.md`
-3) See controller spec: `controller/controller.yaml`
+Quick start (reference)
+
+1) Read configuration:
+   `configs/default.yaml`
+
+2) Review controller flow:
+   `docs/10_FLOWCHART.mmd`
+
+3) See controller implementation:
+   `controller/amnion_controller.py`
+
+git clone https://github.com/maximumberlin76/amnion-oracle.git
+cd amnion-oracle
+chmod +x run.sh
+./run.sh
 
 License
 Apache-2.0
