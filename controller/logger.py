@@ -39,4 +39,5 @@ class Logger:
         self._emit("WARN", event, data)
 
     def error(self, event: str, data: Optional[Dict[str, Any]] = None) -> None:
-        self._emit("ERROR", event, data)
+        self._emit("ERROR", ev
+                   ent, data)
