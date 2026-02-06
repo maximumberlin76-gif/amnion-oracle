@@ -1,3 +1,4 @@
+# controller/logger.py
 from __future__ import annotations
 
 import json
@@ -27,7 +28,7 @@ class Logger:
             "event": event,
         }
 
-        if data:
+        if data is not None:
             payload["data"] = data
 
         print(json.dumps(payload, ensure_ascii=False))
@@ -39,5 +40,4 @@ class Logger:
         self._emit("WARN", event, data)
 
     def error(self, event: str, data: Optional[Dict[str, Any]] = None) -> None:
-        self._emit("ERROR", ev
-                   ent, data)
+        self._emit("ERROR", event, data)
