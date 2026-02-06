@@ -12,7 +12,7 @@ DEFAULT_CONFIG_DIR = Path(__file__).resolve().parent.parent / "configs"
 
 DEFAULT_CONFIG_FILES = [
     "00_system.yaml",
-    "01_interfaces.yaml",   # у тебя сейчас 01_interfaces_config.yaml (это надо переименовать потом)
+    "01_interfaces.yaml",
     "02_safety.yaml",
     "03_metrics.yaml",
     "04_logging.yaml",
