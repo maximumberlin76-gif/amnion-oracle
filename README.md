@@ -53,6 +53,12 @@ so anyone can verify behavior and safety logic.
 - `/tools` — helper utilities  
 - `/examples` — usage examples  
 
+## Core Engine (External Runtime)
+
+This repository can integrate with the external SCM / Law-X runtime:
+
+https://github.com/maximumberlin76-gif/<repo-name>
+
 ### Planned / future folders
 
 - `/specs` — formal specifications  
