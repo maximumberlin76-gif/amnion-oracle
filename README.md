@@ -82,8 +82,7 @@ chmod +x run.sh
 
 
 3) Run (Windows PowerShell)
-Копировать код
-Powershell
+'''Powershell
 git clone https://github.com/maximumberlin76/amnion-oracle.git
 cd amnion-oracle
 pip install -r requirements.txt
@@ -97,5 +96,5 @@ License
 Apache-2.0
 
 Attribution
-Concept & author: Maksym Marnov
-GitHub: maximumberlin76
+Concept & author: Maksym Marnov (maximumberlin76-gif)
+GitHub: https://github.com/maximumberlin76-gif
