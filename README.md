@@ -56,6 +56,7 @@ so anyone can verify behavior and safety logic.
 ## Core Engine (External Runtime)
 
 This repository can integrate with the external SCM / Law-X runtime:
+Reference runtime optional; controller runs in standalone mode.
 
 https://github.com/maximumberlin76-gif/<repo-name>
 
@@ -96,7 +97,10 @@ python -m controller --config-dir configs --ticks 3000
 4) Output
 Execution logs are written to:
 results/run_3000.log
-
+5) Expected behavior:
+- state machine ticks
+- safety transitions visible in logs
+- no actuator output (simulation only)
 
 License
 Apache-2.0
