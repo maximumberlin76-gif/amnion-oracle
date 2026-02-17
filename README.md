@@ -132,10 +132,11 @@ python -m controller --config-dir configs --ticks 3000
 4) Output
 Execution logs are written to:
 results/run_3000.log
-5) Expected behavior
-state machine ticks
-safety transitions visible in logs
-no actuator output (simulation only)
+
+6) Expected behavior
+-state machine ticks
+-safety transitions visible in logs
+-no actuator output (simulation only)
 
 
 License
