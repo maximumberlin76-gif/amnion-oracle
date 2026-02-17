@@ -53,6 +53,32 @@ so anyone can verify behavior and safety logic.
 - `/tools` — helper utilities  
 - `/examples` — usage examples  
 
+
+Documentation Map (read order)
+
+The documentation follows a strict top-down reading order:
+
+1. docs/SYSTEM_OVERVIEW.md — high-level architecture and boundaries
+2. docs/STATE_MACHINE.md — canonical safety state machine definition
+3. Numbered specification series:
+
+   - 00_PREFACE.md — intent and scope
+   - 01_TECH_SPEC.md — baseline technical assumptions
+   - 02_ARCHITECTURE.md — system architecture
+   - 03_SAFETY_LOGIC.md — safety logic overview
+   - 04_STABILITY_METRICS.md — stability and thresholds (non-clinical)
+   - 05_IMPLEMENTATION_MODULES.md — module layout
+   - 06_SOFTWARE_SPEC.md — controller behavior
+   - 07_HARDWARE_SPEC.md — hardware scope (planned)
+   - 08_MATERIALS_AND_CHEMISTRY.md — materials structure (spec only)
+   - 09_TEST_PROTOCOLS.md — validation approach
+   - 10_FLOWCHART.mmd — control loop diagram
+   - 11_RELEASE_AND_DEPLOYMENT.md — release flow
+   - 12_ETHICS_AND_INVARIANTS.md — hard ethical constraints
+   - 13_THREAT_MODEL.md — threat assumptions
+   - 14_LIMITATIONS_AND_SCOPE.md — explicit boundaries
+   - 15_GLOSSARY.md — terminology
+
 ## Core Engine (External Runtime)
 
 This repository can integrate with the external SCM / Law-X runtime:
@@ -88,7 +114,7 @@ pip install -r requirements.txt
 chmod +x run.sh
 ./run.sh
 3) Run (Windows PowerShell)
-Powershell
+```powershell
 git clone https://github.com/maximumberlin76-gif/amnion-oracle.git
 cd amnion-oracle
 pip install -r requirements.txt
