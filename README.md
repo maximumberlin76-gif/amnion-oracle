@@ -143,4 +143,5 @@ Apache-2.0
 
 Attribution
 Concept & author: Maksym Marnov (maximumberlin76-gif)
-GitHub: https://github.com/maximumberlin76-gif
+GitHub: https://github.com/maximumberlin76
+-gif
