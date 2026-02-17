@@ -27,7 +27,7 @@ Multiple triggers can occur in the same tick. The controller MUST apply this pri
 4. De-escalation to a less strict state (e.g., `THROTTLE → WARN`)
 
 If multiple reasons apply within the same priority level, the controller MUST:
-- select the strictest resulting state
+- select the strictest resulting state deterministically
 - log **all** triggering reasons (not just the first one)
 
 ---
