@@ -69,6 +69,7 @@ https://github.com/maximumberlin76-gif/<repo-name>
 
 ---
 
+
 ## Quick Start (reference controller)
 
 ### 1) Read first (no execution)
@@ -77,30 +78,29 @@ https://github.com/maximumberlin76-gif/<repo-name>
 - Controller entrypoint: `controller/__main__.py`
 - Controller logic: `controller/amnion_controller.py`
 - Config loader: `controller/config_loader.py`
-
+- State machine spec: `docs/STATE_MACHINE.md`
 
 ### 2) Run (Linux/macOS / Git Bash / WSL)
-```sh
-git clone https://github.com/maximumberlin76/amnion-oracle.git
+```bash
+git clone https://github.com/maximumberlin76-gif/amnion-oracle.git
 cd amnion-oracle
 pip install -r requirements.txt
 chmod +x run.sh
 ./run.sh
-
-
 3) Run (Windows PowerShell)
-'''Powershell
-git clone https://github.com/maximumberlin76/amnion-oracle.git
+Powershell
+git clone https://github.com/maximumberlin76-gif/amnion-oracle.git
 cd amnion-oracle
 pip install -r requirements.txt
 python -m controller --config-dir configs --ticks 3000
 4) Output
 Execution logs are written to:
 results/run_3000.log
-5) Expected behavior:
-- state machine ticks
-- safety transitions visible in logs
-- no actuator output (simulation only)
+5) Expected behavior
+state machine ticks
+safety transitions visible in logs
+no actuator output (simulation only)
+
 
 License
 Apache-2.0
