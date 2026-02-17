@@ -73,4 +73,4 @@ Make this repository usable as an engineering base where:
 - structure is clear
 - state machine is unambiguous
 - specs are formal enough to re-implement
-- nothing depends on narrative context
+- Specifications must be sufficient for independent re-implementation.
