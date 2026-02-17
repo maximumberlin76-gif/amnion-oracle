@@ -123,7 +123,7 @@ chmod +x run.sh
 
 ### 3) Run (Windows PowerShell)
 ```powershell
-git clone https://github.com/maximumberlin76-gif/amnion-oracle.git
+git clone https://github.com/maximumberlin76-gif amnion-oracle.git
 cd amnion-oracle
 pip install -r requirements.txt
 python -m controller --config-dir configs --ticks 3000
@@ -138,10 +138,13 @@ results/run_3000.log
 - safety transitions visible in logs
 - no actuator output (simulation only)
 
-License
+---
+
+## License
 Apache-2.0
 
-Attribution
-Concept & author: Maksym Marnov (maximumberlin76-gif)
-GitHub: https://github.com/maximumberlin76
--gif
+## Attribution
+Concept & author: Maksym Marnov (maximumberlin76-gif)  
+GitHub: https://github.com/maximumberlin76-gif
+
+
