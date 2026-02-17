@@ -119,12 +119,15 @@ cd amnion-oracle
 pip install -r requirements.txt
 chmod +x run.sh
 ./run.sh
+```
 
-3) Run (Windows PowerShell)
+### 3) Run (Windows PowerShell)
+```powershell
 git clone https://github.com/maximumberlin76-gif/amnion-oracle.git
 cd amnion-oracle
 pip install -r requirements.txt
 python -m controller --config-dir configs --ticks 3000
+```
 
 4) Output
 Execution logs are written to:
