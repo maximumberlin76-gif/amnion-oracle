@@ -32,16 +32,24 @@ Option B — Microcontroller control
 
 Sensor → Metric Mapping (reference)
 
-Temp sensor        → temp_c
-Power monitor      → power_w / P_draw
-Phase channel      → phase_noise / q_factor proxy
-Watchdog validity  → sensor_health
+- Temp sensor        → temp_c
+- Power monitor      → power_w /  P_draw
+- Phase channel      → phase_noise / q_factor proxy
+- Watchdog validity  → sensor_health
 
 Required (minimum):
 - phase/coherence measurement channel (abstract)
 - power monitor (P_in, P_draw)
 - temperature monitor (system stability)
 - validity flags / watchdog
+
+Recommended polling ranges (concept-level)
+Polling rates are independent from controller tick rate and may be downsampled before entering the control loop.
+
+- temperature: 1–10 Hz
+- power monitor: 50–200 Hz
+- phase/coherence: 500–2000 Hz
+- watchdog: >= control loop rate
 
 Policies:
 - sensor timeout → guard degrade
@@ -95,13 +103,6 @@ Target properties (engineering intent):
 
 Candidate material stack (concept-level reference):
 
-Recommended polling ranges 
-
-temperature: 1–10 Hz
-power monitor: 50–200 Hz
-phase/coherence: 500–2000 Hz
-watchdog: >= control loop rate
-
 - Frame / lattice: Ti-6Al-4V (or equivalent titanium alloy class)
 - Piezo layer: AlN thin film (preferred for stability) OR PZT (higher response, higher complexity)
 - Electrode layer: Au / Pt thin film (corrosion-resistant)
@@ -120,11 +121,11 @@ These limits are enforced at the actuator boundary (hardware side),
 even if software misbehaves.
 
 
-Mode        Power budget intent
-Nominal     <= P_budget_nominal
-Throttle    reduced duty cycle
-Degraded    minimal safe consumption
-Lock        actuation off
+- Mode        Power budget intent
+- Nominal     <= P_budget_nominal
+- Throttle    reduced duty cycle
+- Degraded    minimal safe consumption
+- Lock        actuation off
 
 10.1 Power envelope
 - P_draw <= P_max_hw
