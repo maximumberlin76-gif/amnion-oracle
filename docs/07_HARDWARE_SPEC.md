@@ -34,7 +34,7 @@ Sensor → Metric Mapping (reference)
 
 - Temp sensor        → temp_c
 - Power monitor      → power_w /  P_draw
-- Phase channel      → phase_noise / q_factor proxy
+- Phase channel      → phase_noise / q_factor proxy derived proxy
 - Watchdog validity  → sensor_health
 
 Required (minimum):
@@ -44,6 +44,7 @@ Required (minimum):
 - validity flags / watchdog
 
 Recommended polling ranges (concept-level)
+
 Polling rates are independent from controller tick rate and may be downsampled before entering the control loop.
 
 - temperature: 1–10 Hz
@@ -120,12 +121,11 @@ Design intent:
 These limits are enforced at the actuator boundary (hardware side),
 even if software misbehaves.
 
-
-- Mode        Power budget intent
-- Nominal     <= P_budget_nominal
-- Throttle    reduced duty cycle
-- Degraded    minimal safe consumption
-- Lock        actuation off
+Mode      — Power budget intent
+Nominal   — <= P_budget_nominal
+Throttle  — reduced duty cycle
+Degraded  — minimal safe consumption
+Lock      — actuation off
 
 10.1 Power envelope
 - P_draw <= P_max_hw
