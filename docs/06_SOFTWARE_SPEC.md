@@ -79,6 +79,92 @@ Outputs:
 - `guard_state`
 
 
+## Controller Tick Contract
+
+The reference controller operates as a deterministic tick-based system.
+
+A **tick** is one full execution cycle:
+
+Model → Act → Sense → Adjust
+
+This order is mandatory and must not be reordered by implementations.
+
+---
+
+### Tick() interface (concept-level)
+
+**Inputs (read-only):**
+
+- metrics — measured or derived values (e.g. temp_c, q_factor, phase_noise)
+- thresholds — configuration limits loaded from YAML/JSON
+- current_state — safety state at tick start
+- config_hash — integrity identifier of active configuration
+- controller_version — runtime identifier
+
+**Outputs:**
+
+- next_state — resulting safety state
+- decision — action summary (e.g. no-op, throttle_reduce, isolate_channels)
+- actions — abstract control outputs (may be empty in simulation)
+- log_entry — structured record of the tick
+
+---
+
+### Execution order
+
+#### 1. Model
+- Load config thresholds.
+- Compute derived metrics (e.g. mismatch_power, coherence_score).
+- Validate sensor health flags.
+- No actuator decisions occur in this phase.
+
+#### 2. Act
+- Produce abstract control intent (u_control, u_throttle).
+- In simulator mode this MUST remain a no-op abstraction.
+- Real-world actuation is outside the documentation scope.
+
+#### 3. Sense
+- Ingest new sensor data or simulated inputs.
+- Validate integrity and timeouts.
+- Update metric snapshot for state evaluation.
+
+#### 4. Adjust
+- Evaluate safety triggers using STATE_MACHINE rules.
+- Apply trigger priority:
+
+LOCK → Escalation → Lateral → De-escalation
+
+- Generate decision summary.
+- Emit log entry.
+
+---
+
+### Determinism requirement
+
+Given:
+- identical inputs
+- identical configuration
+- identical tick order
+
+the controller MUST produce:
+- identical state transitions
+- identical decisions
+- identical log entries
+
+Any deviation is considered a violation of the deterministic contract.
+
+---
+
+### Safety separation rule
+
+The tick contract enforces strict separation:
+
+- Control logic may propose actions.
+- Safety logic decides whether actions are allowed.
+
+The tick loop MUST never bypass safety evaluation.
+
+
 6. Logging / audit
 Must record:
 - timestamp
