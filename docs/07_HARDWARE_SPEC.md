@@ -29,6 +29,14 @@ Option B — Microcontroller control
 
 
 3. Sensors (concept-level)
+
+Sensor → Metric Mapping (reference)
+
+Temp sensor        → temp_c
+Power monitor      → power_w / P_draw
+Phase channel      → phase_noise / q_factor proxy
+Watchdog validity  → sensor_health
+
 Required (minimum):
 - phase/coherence measurement channel (abstract)
 - power monitor (P_in, P_draw)
@@ -74,6 +82,9 @@ Rules:
 - watchdog triggers correctly
 - sensor timeout triggers degrade mode
 
+Materials listed below are engineering-class examples for structural discussion only.
+No fabrication instructions are provided in this repository.
+
  9. Resonant cell / capsule material (concept)
 
 Target properties (engineering intent):
@@ -83,6 +94,14 @@ Target properties (engineering intent):
 - chemically inert / low-degradation carrier medium
 
 Candidate material stack (concept-level reference):
+
+Recommended polling ranges 
+
+temperature: 1–10 Hz
+power monitor: 50–200 Hz
+phase/coherence: 500–2000 Hz
+watchdog: >= control loop rate
+
 - Frame / lattice: Ti-6Al-4V (or equivalent titanium alloy class)
 - Piezo layer: AlN thin film (preferred for stability) OR PZT (higher response, higher complexity)
 - Electrode layer: Au / Pt thin film (corrosion-resistant)
@@ -99,6 +118,13 @@ Design intent:
 
 These limits are enforced at the actuator boundary (hardware side),
 even if software misbehaves.
+
+
+Mode        Power budget intent
+Nominal     <= P_budget_nominal
+Throttle    reduced duty cycle
+Degraded    minimal safe consumption
+Lock        actuation off
 
 10.1 Power envelope
 - P_draw <= P_max_hw
