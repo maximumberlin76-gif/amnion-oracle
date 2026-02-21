@@ -122,7 +122,7 @@ Critical (Barrier):
 - metrics.f_ref            — reference resonance frequency
 - metrics.intent_vector    — normalized intention / computation vector
 - metrics.state_integrity  — storage coherence [0..1]
--.metrics.loop_closure     — boolean (true if Z-loop closed)
+- metrics.loop_closure     — boolean (true if Z-loop closed)
 
 
 4.3) ABRAXAS Stability Invariants
