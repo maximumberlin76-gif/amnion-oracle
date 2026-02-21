@@ -108,11 +108,11 @@ Critical (Barrier):
 
 4.1) ABRAXAS-764 Core Metrics Mapping
 
-AZ (Master Oscillator)  -> metrics.f_ref
-RCY (Vector ALU)        -> metrics.intent_vector
-SLOVO (Storage/Matrix) -> metrics.state_integrity
-VOZVRAT (Phase Reset)  -> metrics.phase_error
-Z-Loop (Plasma Loop)   -> metrics.loop_closure
+- AZ (Master Oscillator)  -> metrics.f_ref
+- RCY (Vector ALU)        -> metrics.intent_vector
+- SLOVO (Storage/Matrix) -> metrics.state_integrity
+- VOZVRAT (Phase Reset)  -> metrics.phase_error
+- Z-Loop (Plasma Loop)   -> metrics.loop_closure
 
 
 4.2) Additional Stability Metrics
