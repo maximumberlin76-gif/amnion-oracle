@@ -12,6 +12,21 @@ K     — coupling coefficient
 D     — damping coefficient
 P_max — maximum allowed power
 
+1.1) Resonance Model Interface
+
+The coherence model defined in docs/specs/resonance_model.md
+provides the state-vector and derived metrics used in this section.
+
+Inputs from resonance layer:
+
+    r_order
+    state_vector
+    phase_mean
+    coherence_score
+
+These values are treated as physical observables.
+04_STABILITY_METRICS does not define resonance physics —
+it only defines stability evaluation rules applied to them.
 
 For each subsystem `i`, the following parameters are computed:
 
@@ -23,10 +38,12 @@ Qᵢ (Quality Factor) — dimensionless measure of subsystem coherence and reson
 - φ_error — phase error relative to system mean phase:  
   φ_error = |φᵢ − φ_avg|
 
-
+ 
 2) Loss Function and Q Degradation
 
 System quality factor is dynamic and decreases when mismatch grows.
+
+φ_error is provided by resonance_model phase statistics.
 
 Total Loss (L)
 
