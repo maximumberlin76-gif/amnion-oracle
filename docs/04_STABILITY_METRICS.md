@@ -25,6 +25,8 @@ Inputs from resonance layer:
     coherence_score
 
 These values are treated as physical observables.
+The stability layer MUST remain deterministic.
+No stochastic sampling is allowed inside.
 04_STABILITY_METRICS does not define resonance physics —
 it only defines stability evaluation rules applied to them.
 
