@@ -17,6 +17,28 @@ It is NOT a medical device and NOT intended for clinical use.
 - non-reactive interface with gel medium
 - manufacturable with existing industrial processes
 
+## Specification Structure (Canonical)
+
+All material descriptions in this document follow a documentation-first engineering structure.
+
+Order of sections:
+
+1. Structural frame (solid phase)
+2. Surface coating / interface layer
+3. Gel medium (soft phase)
+4. Compatibility constraints
+5. Thermal envelope
+6. Aging & degradation behavior
+7. Manufacturing notes
+
+Design rule:
+
+All parameters are expressed as **reference ranges**, not performance guarantees.
+No biological, therapeutic, or medical effects are claimed or implied anywhere in this document.
+
+Engineering priority:
+
+stability > resonance response > efficiency
 
 2. Structural frame (solid phase)
 
