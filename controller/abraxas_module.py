@@ -61,6 +61,44 @@ class AbraxasModule:
             f_tol = self.f_tol_default
 
         try:
-            phase_error = float(sensors.get("phase_error", sensors.get("phase_noise",
+            phase_error = float(sensors.get("phase_error", sensors.get("phase_noise", 0.0)))
+        except Exception:
+            phase_error = 0.0
 
-                                                                       
+        lc_raw = sensors.get("loop_closure", False)
+        loop_closure = bool(lc_raw) if not isinstance(lc_raw, str) else (lc_raw.strip().lower() in ("1", "true", "yes", "y", "on"))
+
+        try:
+            state_integrity = float(sensors.get("state_integrity", sensors.get("sensor_health", 0.0)))
+        except Exception:
+            state_integrity = 0.0
+
+        try:
+            integrity_min = float(sensors.get("integrity_min", self.integrity_min_default))
+        except Exception:
+            integrity_min = self.integrity_min_default
+
+        violations: List[str] = []
+
+        # I6
+        if abs(f_ref - 76.4) > f_tol:
+            violations.append("I6_RESONANCE_LOCK")
+
+        # I7
+        if not loop_closure:
+            violations.append("I7_LOOP_CLOSURE")
+
+        # I8
+        if state_integrity < integrity_min:
+            violations.append("I8_STATE_INTEGRITY")
+
+        return AbraxasDiag(
+            f_ref=f_ref,
+            f_tol=f_tol,
+            phase_error=phase_error,
+            loop_closure=loop_closure,
+            state_integrity=state_integrity,
+            integrity_min=integrity_min,
+            violations=violations,
+        )
+
