@@ -168,5 +168,3 @@ This repository:
 - `06_FLOWCHART.md` — controller flowchart (Mermaid, GitHub-safe syntax)
 - `07_TEST_PROTOCOL.md` — non-clinical test methodology (engineering)
 
-
-End of file.
