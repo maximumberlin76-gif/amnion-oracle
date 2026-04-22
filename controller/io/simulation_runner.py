@@ -12,7 +12,7 @@ from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, Optional
 
 from controller.amnion_controller import AmnionController
-from controller.io.sensor_stub import SensorStub
+from controller.io.sensor_stub import SensorStub, SensorStubConfig
 from controller.io.actuator_stub import ActuatorStub
 
 
@@ -47,7 +47,7 @@ def run_simulation(
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
 
     ctrl = controller or AmnionController()
-    sensor = SensorStub(base_freq=base_freq)
+    sensor = SensorStub(SensorStubConfig(base_freq=base_freq))
     actuator = ActuatorStub()
 
     t_start = time.time()
