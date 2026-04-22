@@ -1,20 +1,11 @@
 # controller/runtime.py
-# Runtime execution for AMNION-ORACLE (documentation-first).
-# Applies SafetyGate decision to produce final actuator command.
+# Deterministic runtime for AMNION-ORACLE
+# No clinical use. No direct hardware actuation.
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
-
-
-def _to_float(x: Any) -> Optional[float]:
-    if x is None:
-        return None
-    try:
-        return float(x)
-    except (TypeError, ValueError):
-        return None
 
 
 def clamp(x: float, lo: float, hi: float) -> float:
@@ -23,21 +14,19 @@ def clamp(x: float, lo: float, hi: float) -> float:
 
 @dataclass
 class RuntimeConfig:
-    # Canonical limits (runtime is independent)
-    P_max: float = 1.0
+    # Control output bounds
     u_min: float = 0.0
     u_max: float = 1.0
 
-    # Default control coefficients
-    G_default: float = 1.0
-    K_default: float = 1.0
-    D_default: float = 0.1
+    # Default nominal control
+    u_nominal: float = 0.5
 
-    # Barrier numeric mapping
-    D_high_value: float = 1.0
+    # Default budgets
+    P_budget_nominal: float = 0.8
+    P_budget_min: float = 0.0
 
-    # Minimal safe output when SAFE_HALT
-    u_safe_halt: float = 0.0
+    # Safety fallback
+    fail_safe_u: float = 0.0
 
 
 @dataclass
@@ -46,139 +35,117 @@ class Runtime:
 
     def compute(self, sensors: Dict[str, Any], safety_state: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Produce final control_frame after applying safety patch.
+        Deterministic runtime step.
 
-        sensors (concept-level):
-          - desired_u (optional) or P_draw_request (optional)
-          - G, K, D (optional)
+        Inputs:
+            sensors: sanitized + enriched sensor dict
+            safety_state: output of SafetyGate.evaluate()
 
-        safety_state:
-          - state, allow_control, patch{...}, limits{...}
+        Output:
+            {
+                "u_control": float,
+                "mode": str,
+                "P_budget": float,
+            }
         """
+
         sensors = sensors or {}
         safety_state = safety_state or {}
 
-        patch = safety_state.get("patch") or {}
+        patch = safety_state.get("patch", {}) or {}
         state = str(safety_state.get("state", "S0_NORMAL"))
         allow_control = bool(safety_state.get("allow_control", True))
 
-        limits = safety_state.get("limits") or {}
-        P_max = _to_float(limits.get("P_max")) or self.cfg.P_max
-        P_budget_min = _to_float(limits.get("P_budget_min"))
-        if P_budget_min is None:
-            P_budget_min = 0.0
-        P_budget_soft = _to_float(limits.get("P_budget_soft"))
-        if P_budget_soft is None:
-            P_budget_soft = min(P_max, 0.8)
+        # ------------------------------------------------------------
+        # 1) Read base metrics
+        # ------------------------------------------------------------
+        q = self._to_float(sensors.get("Q"))
+        coherence = self._to_float(sensors.get("coherence_score"))
+        rate_change = self._to_float(sensors.get("rate_change"))
+        phase_error = self._to_float(sensors.get("phase_error"))
+        p_draw = self._to_float(sensors.get("P_draw"))
 
-        # --- Proposed control request ---
-        desired_u = _to_float(sensors.get("desired_u"))
-        if desired_u is None:
-            desired_u = _to_float(sensors.get("P_draw_request"))
-        if desired_u is None:
-            desired_u = 0.0
+        # ------------------------------------------------------------
+        # 2) Base nominal control
+        # ------------------------------------------------------------
+        u = self.cfg.u_nominal
 
-        # Always clamp to actuator envelope first
-        desired_u = clamp(desired_u, self.cfg.u_min, self.cfg.u_max)
+        # Prefer coherence / Q if available
+        if q is not None:
+            u *= clamp(q, 0.0, 1.0)
+        elif coherence is not None:
+            u *= clamp(coherence, 0.0, 1.0)
 
-        # Proposed params (optional)
-        G = _to_float(sensors.get("G")) or self.cfg.G_default
-        K = _to_float(sensors.get("K")) or self.cfg.K_default
-        D = _to_float(sensors.get("D")) or self.cfg.D_default
+        # Penalize phase instability
+        if phase_error is not None:
+            u *= clamp(1.0 - abs(phase_error), 0.0, 1.0)
 
-        mode = str(patch.get("mode", "NONE")).upper()
+        # Penalize rapid change
+        if rate_change is not None:
+            penalty = clamp(1.0 - min(abs(rate_change), 1.0), 0.0, 1.0)
+            u *= penalty
 
-        # SAFE_HALT
-        if mode == "SAFE_HALT" or state == "S3_SAFE_HALT":
-            return {
-                "state": "SAFE_HALT",
-                "u_cmd": self.cfg.u_safe_halt,
-                "G": 0.0,
-                "K": 0.0,
-                "D": self._map_D(patch.get("D", "HIGH")),
-                "P_budget": 0.0,
-                "notes": ["safe_halt"],
-            }
+        # ------------------------------------------------------------
+        # 3) Apply patch from SafetyGate
+        # ------------------------------------------------------------
+        mode = str(patch.get("mode", "NONE"))
+        p_budget = self._to_float(patch.get("P_budget"))
+        if p_budget is None:
+            p_budget = self.cfg.P_budget_nominal
 
-        # If guard disallows control, force BARRIER deterministically
+        if mode == "THROTTLE":
+            g_scale = self._to_float(patch.get("G_scale")) or 1.0
+            u *= g_scale
+
+        elif mode == "BARRIER":
+            u = self.cfg.fail_safe_u
+            p_budget = self.cfg.P_budget_min
+
+        elif mode == "SAFE_HALT":
+            u = 0.0
+            p_budget = 0.0
+
+        # ------------------------------------------------------------
+        # 4) Respect allow_control flag
+        # ------------------------------------------------------------
         if not allow_control:
-            mode = "BARRIER"
+            u = 0.0
 
-        # BARRIER
-        if mode == "BARRIER" or state == "S2_BARRIER":
-            K = 0.0
-            D = self._map_D(patch.get("D", "HIGH"))
+        # ------------------------------------------------------------
+        # 5) Clamp output
+        # ------------------------------------------------------------
+        u = clamp(u, self.cfg.u_min, self.cfg.u_max)
 
-            P_budget = _to_float(patch.get("P_budget"))
-            if P_budget is None:
-                P_budget = P_budget_min
-
-            u_cap = min(P_max, P_budget)
-            u_cmd = clamp(desired_u, 0.0, u_cap)
-            u_cmd = clamp(u_cmd, self.cfg.u_min, self.cfg.u_max)
-
-            notes = ["barrier"]
-            if patch.get("freeze_fast_adaptation"):
-                notes.append("freeze_fast_adaptation")
-
-            return {
-                "state": "BARRIER",
-                "u_cmd": u_cmd,
-                "G": 0.0,
-                "K": K,
-                "D": D,
-                "P_budget": P_budget,
-                "notes": notes,
-            }
-
-        # THROTTLE
-        if mode == "THROTTLE" or state == "S1_THROTTLE":
-            G_scale = _to_float(patch.get("G_scale")) or 1.0
-            K_scale = _to_float(patch.get("K_scale")) or 1.0
-            D_boost = _to_float(patch.get("D_boost")) or 1.0
-
-            P_budget = _to_float(patch.get("P_budget"))
-            if P_budget is None:
-                P_budget = P_budget_soft
-
-            G = max(0.0, G * G_scale)
-            K = max(0.0, K * K_scale)
-            D = max(0.0, D * D_boost)
-
-            u_cap = min(P_max, P_budget)
-            u_cmd = clamp(desired_u, 0.0, u_cap)
-            u_cmd = clamp(u_cmd, self.cfg.u_min, self.cfg.u_max)
-
-            return {
-                "state": "THROTTLE",
-                "u_cmd": u_cmd,
-                "G": G,
-                "K": K,
-                "D": D,
-                "P_budget": P_budget,
-                "notes": ["throttle"],
-            }
-
-        # NORMAL
-        u_cmd = clamp(desired_u, 0.0, P_max)
-        u_cmd = clamp(u_cmd, self.cfg.u_min, self.cfg.u_max)
+        # ------------------------------------------------------------
+        # 6) Normalize outward mode naming
+        # ------------------------------------------------------------
+        outward_mode = self._map_state_to_mode(state, mode)
 
         return {
-            "state": "NORMAL",
-            "u_cmd": u_cmd,
-            "G": G,
-            "K": K,
-            "D": D,
-            "P_budget": P_max,
-            "notes": ["normal"],
+            "u_control": u,
+            "mode": outward_mode,
+            "P_budget": p_budget,
         }
 
-    def _map_D(self, d_value: Any) -> float:
-        if isinstance(d_value, (int, float)):
-            return float(d_value)
-        s = str(d_value).upper()
-        if s == "HIGH":
-            return self.cfg.D_high_value
-        if s == "LOW":
-            return self.cfg.D_default
-        return self.cfg.D_high_value
+    @staticmethod
+    def _to_float(x: Any) -> Optional[float]:
+        try:
+            return None if x is None else float(x)
+        except Exception:
+            return None
+
+    @staticmethod
+    def _map_state_to_mode(state: str, patch_mode: str) -> str:
+        if state == "S3_SAFE_HALT":
+            return "LOCK"
+        if state == "S2_BARRIER":
+            return "BARRIER"
+        if state == "S1_THROTTLE":
+            return "THROTTLE"
+        if patch_mode == "SAFE_HALT":
+            return "LOCK"
+        if patch_mode == "BARRIER":
+            return "BARRIER"
+        if patch_mode == "THROTTLE":
+            return "THROTTLE"
+        return "NORMAL"
