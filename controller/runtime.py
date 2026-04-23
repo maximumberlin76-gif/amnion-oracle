@@ -63,7 +63,7 @@ class Runtime:
         coherence = self._to_float(sensors.get("coherence_score"))
         rate_change = self._to_float(sensors.get("rate_change"))
         phase_error = self._to_float(sensors.get("phase_error"))
-        p_draw = self._to_float(sensors.get("P_draw"))
+        _ = self._to_float(sensors.get("P_draw"))
 
         # ------------------------------------------------------------
         # 2) Base nominal control
