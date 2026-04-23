@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "AMNION-ORACLE"
+message: "If you use this project, please cite it using this metadata."
+type: software
+authors:
+  - family-names: "Marnov"
+    given-names: "Maksym"
+    alias: "maximumberlin76-gif"
+repository-code: "https://github.com/maximumberlin76-gif/amnion-oracle"
+license: "Apache-2.0"
+version: "v0.1.0-spec"
+abstract: "Documentation-first resonance wellness capsule architecture (software + hardware + gel chemistry), with a controlled ethics-physics safety loop. Engineering prototype specification only; non-clinical and simulation-only."
+keywords:
+  - resonance
+  - wellness capsule
+  - simulation
+  - safety state machine
+  - engineering specification
