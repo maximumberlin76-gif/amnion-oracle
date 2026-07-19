@@ -6,6 +6,7 @@ authors:
   - family-names: "Marnov"
     given-names: "Maksym"
     alias: "maximumberlin76-gif"
+    orcid: "https://orcid.org/0009-0000-0832-9597"
 repository-code: "https://github.com/maximumberlin76-gif/amnion-oracle"
 license: "Apache-2.0"
 version: "v0.1.0-spec"
